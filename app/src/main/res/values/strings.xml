@@ -6,7 +6,6 @@
     <string name="nav_header_subtitle">Navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-
     <string name="menu_home">Work</string>
     <string name="menu_gallery">Personal</string>
     <string name="menu_slideshow">Others</string>
