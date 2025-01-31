@@ -16,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,18 +23,54 @@ import androidx.compose.foundation.lazy.items
 import com.example.listsqre_revamped.ui.ComposeAppTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var database: CardDatabase
+    private lateinit var cardDao: CardDao
+    private var cards by mutableStateOf(mutableListOf<Pair<String, Boolean>>())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        database = CardDatabase.getDatabase(this)
+        cardDao = database.cardDao()
+
+        // Load saved data from the database
+        loadCards()
+
         setContent {
             ComposeAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CardManager { openNotificationActivity() }
+                    CardManager(
+                        cards = cards,
+                        onCardsChanged = { newCards -> cards = newCards.toMutableList() },
+                        onNotificationClick = { openNotificationActivity() }
+                    )
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        saveCards()
+    }
+
+    private fun loadCards() {
+        Thread {
+            val savedCards = cardDao.getAllCards().map { it.name to it.isChecked }
+            runOnUiThread {
+                cards = savedCards.toMutableList()
+            }
+        }.start()
+    }
+
+    private fun saveCards() {
+        Thread {
+            cardDao.deleteAllCards()
+            cardDao.insertCards(cards.map { CardItem(it.first, it.second) })
+        }.start()
     }
 
     private fun openNotificationActivity() {
@@ -44,19 +79,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
-fun CardManager(onNotificationClick: () -> Unit) {
-    var cards by remember { mutableStateOf(mutableListOf<Pair<String, Boolean>>()) }
+fun CardManager(
+    cards: List<Pair<String, Boolean>>,
+    onCardsChanged: (List<Pair<String, Boolean>>) -> Unit,
+    onNotificationClick: () -> Unit
+) {
     var showCreateDialog by remember { mutableStateOf(false) }
 
     if (showCreateDialog) {
-        EditCardDialog(
+        CardDialog(
             initialText = "",
             title = "Create New Item",
             onDismiss = { showCreateDialog = false },
             onSave = { cardName ->
                 if (cardName.isNotBlank()) {
-                    cards = (cards + Pair(cardName, false)).toMutableList()
+                    onCardsChanged(cards + Pair(cardName, false))
                 }
                 showCreateDialog = false
             }
@@ -80,9 +119,9 @@ fun CardManager(onNotificationClick: () -> Unit) {
                         cardName = card.first,
                         isChecked = card.second,
                         onCheckedChange = { isChecked ->
-                            cards = cards.map {
+                            onCardsChanged(cards.map {
                                 if (it.first == card.first) it.copy(second = isChecked) else it
-                            }.toMutableList()
+                            })
                         }
                     )
                 }
@@ -97,39 +136,23 @@ fun CardManager(onNotificationClick: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
-                onClick = { cards = cards.filterNot { it.second }.toMutableList() },
-                enabled = cards.any { it.second },
-                /* colors = ButtonDefaults.buttonColors(containerColor = if (cards.any { it.second }) MaterialTheme.colorScheme.secondary else Color.Gray) */
+                onClick = { onCardsChanged(cards.filterNot { it.second }) },
+                enabled = cards.any { it.second }
             ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Card",
-                    tint = if (cards.any { it.second }) MaterialTheme.colorScheme.onPrimary else Color.LightGray
-                )
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Card")
             }
 
-            Button(
-                onClick = { showCreateDialog = true } /* onNotificationClick */
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+            Button(onClick = onNotificationClick) {
+                Icon(imageVector = Icons.Default.Notifications, contentDescription = "Notifications")
             }
 
-            Button(
-                onClick = { showCreateDialog = true }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Card",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+            Button(onClick = { showCreateDialog = true }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Card")
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -154,7 +177,7 @@ fun AppHeader(onNotificationClick: () -> Unit) {
 }
 
 @Composable
-fun EditCardDialog(
+fun CardDialog(
     initialText: String,
     title: String,
     onDismiss: () -> Unit,
@@ -176,7 +199,7 @@ fun EditCardDialog(
             TextButton(
                 onClick = { onSave(text) },
                 colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSecondary
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Text("Save")
@@ -186,7 +209,7 @@ fun EditCardDialog(
             TextButton(
                 onClick = onDismiss,
                 colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSecondary
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Text("Cancel")
@@ -221,7 +244,7 @@ fun CardLayout(
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = onCheckedChange,
-                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
+                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.onPrimary)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -235,27 +258,6 @@ fun CardLayout(
                     .weight(1f)
                     .animateContentSize()
             )
-        }
-    }
-}
-
-class NotificationActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            ComposeAppTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Text(
-                        text = "Notification Screen",
-                        modifier = Modifier.fillMaxSize(),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp") // Apply KSP plugin
 }
 
 android {
@@ -60,6 +61,11 @@ dependencies {
 
     // Material Design 3
     implementation("androidx.compose.material3:material3:1.2.1")
+
+    // Room database integration
+    implementation("androidx.room:room-runtime:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
+    ksp("androidx.room:room-compiler:2.5.2")
 
     // Tooling for Preview
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.3")
