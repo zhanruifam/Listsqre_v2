@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -18,33 +20,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.example.listsqre_revamped.ui.ComposeAppTheme
 
 class MainActivity : ComponentActivity() {
-    private lateinit var database: CardDatabase
-    private lateinit var cardDao: CardDao
-    private var cards by mutableStateOf(mutableListOf<Pair<String, Boolean>>())
+    private val database by lazy { CardDatabase.getDatabase(this) }
+    private val cardDao by lazy { database.cardDao() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        database = CardDatabase.getDatabase(this)
-        cardDao = database.cardDao()
-
-        // Load saved data from the database
-        loadCards()
-
         setContent {
+            val cardsState = remember { mutableStateListOf<Pair<String, Boolean>>() }
+            val scope = rememberCoroutineScope()
+
+            // Load cards asynchronously
+            LaunchedEffect(Unit) {
+                loadCards(cardsState)
+            }
+
             ComposeAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     CardManager(
-                        cards = cards,
-                        onCardsChanged = { newCards -> cards = newCards.toMutableList() },
+                        cards = cardsState,
+                        onCardsChanged = { newCards ->
+                            cardsState.clear()
+                            cardsState.addAll(newCards)
+                            scope.launch { saveCards(newCards) }  // Save updated cards to DB
+                        },
                         onNotificationClick = { openNotificationActivity() }
                     )
                 }
@@ -52,33 +60,27 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        saveCards()
-    }
-
-    private fun loadCards() {
-        Thread {
+    private suspend fun loadCards(cardsState: MutableList<Pair<String, Boolean>>) {
+        withContext(Dispatchers.IO) {
             val savedCards = cardDao.getAllCards().map { it.name to it.isChecked }
-            runOnUiThread {
-                cards = savedCards.toMutableList()
+            withContext(Dispatchers.Main) {
+                cardsState.clear()
+                cardsState.addAll(savedCards)
             }
-        }.start()
+        }
     }
 
-    private fun saveCards() {
-        Thread {
+    private suspend fun saveCards(cards: List<Pair<String, Boolean>>) {
+        withContext(Dispatchers.IO) {
             cardDao.deleteAllCards()
             cardDao.insertCards(cards.map { CardItem(it.first, it.second) })
-        }.start()
+        }
     }
 
     private fun openNotificationActivity() {
-        val intent = Intent(this, NotificationActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, NotificationActivity::class.java))
     }
 }
-
 
 @Composable
 fun CardManager(
@@ -153,26 +155,19 @@ fun CardManager(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppHeader(onNotificationClick: () -> Unit) {
     TopAppBar(
-        title = {
-            Text("Listsqre_v2", color = MaterialTheme.colorScheme.onPrimary, fontSize = 20.sp)
-        },
+        title = { Text("Listsqre_v2", fontSize = 20.sp) },
         actions = {
             IconButton(onClick = onNotificationClick) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    contentDescription = "Notifications"
                 )
             }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        )
+        }
     )
 }
 
@@ -201,9 +196,7 @@ fun CardDialog(
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
-            ) {
-                Text("Save")
-            }
+            ) { Text("Save") }
         },
         dismissButton = {
             TextButton(
@@ -211,9 +204,7 @@ fun CardDialog(
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
-            ) {
-                Text("Cancel")
-            }
+            ) { Text("Cancel") }
         }
     )
 }
@@ -229,7 +220,6 @@ fun CardLayout(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
             .clickable { isExpanded = !isExpanded },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -237,14 +227,11 @@ fun CardLayout(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Checkbox(
                 checked = isChecked,
-                onCheckedChange = onCheckedChange,
-                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.onPrimary)
+                onCheckedChange = onCheckedChange
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -252,7 +239,6 @@ fun CardLayout(
             Text(
                 text = cardName,
                 fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = if (isExpanded) Int.MAX_VALUE else 1,
                 modifier = Modifier
                     .weight(1f)
