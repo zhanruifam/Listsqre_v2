@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
-    // Core Compose UI
+    // Core Compose UI and Material Design 3
     implementation("androidx.compose.ui:ui:1.5.3")
 
     // Material Design 3
