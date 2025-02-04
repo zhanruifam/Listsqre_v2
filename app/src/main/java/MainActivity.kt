@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.animateContentSize
+// import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -225,7 +225,7 @@ fun CardDialog(
                 )
             ) { Text("Cancel") }
         },
-        modifier = Modifier.wrapContentSize(Alignment.BottomCenter) // Ensure it appears above the keyboard
+        modifier = Modifier.wrapContentSize(Alignment.BottomCenter)
     )
 }
 
@@ -280,7 +280,7 @@ fun CardLayout(
                     text = cardName,
                     fontSize = 18.sp,
                     maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-                    modifier = Modifier.animateContentSize()
+                    // modifier = Modifier.animateContentSize()
                 )
             }
             IconButton(onClick = { showEditDialog = true }) {
