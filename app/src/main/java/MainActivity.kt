@@ -4,21 +4,21 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-// import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -92,7 +92,7 @@ fun CardManager(
     onCardsChanged: (List<Pair<String, Boolean>>) -> Unit,
     onNotificationClick: () -> Unit
 ) {
-    var showCreateDialog by remember { mutableStateOf(false) }
+    var showCreateDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showCreateDialog) {
         CardDialog(
@@ -147,15 +147,34 @@ fun CardManager(
                 onClick = { onCardsChanged(cards.filterNot { it.second }) },
                 enabled = cards.any { it.second }
             ) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Card")
+                Icon(imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Card")
             }
 
-            Button(onClick = onNotificationClick) {
-                Icon(imageVector = Icons.Default.Notifications, contentDescription = "Notifications")
+            Button(
+                onClick = {
+                    val (pinned, unpinned) = cards.partition { it.second }
+                    val updatedCards = pinned.map { it.copy(second = false) } + unpinned
+                    onCardsChanged(updatedCards) // Move pinned items to top and uncheck them
+                },
+                enabled = cards.any { it.second },
+            ) {
+                Icon(imageVector = Icons.Default.KeyboardArrowUp,
+                    contentDescription = "Pin Selected")
             }
 
-            Button(onClick = { showCreateDialog = true }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Card")
+            Button(
+                onClick = onNotificationClick
+            ) {
+                Icon(imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications")
+            }
+
+            Button(
+                onClick = { showCreateDialog = true }
+            ) {
+                Icon(imageVector = Icons.Default.Add,
+                    contentDescription = "Add Card")
             }
         }
     }
@@ -169,7 +188,7 @@ fun AppHeader(onNotificationClick: () -> Unit) {
         actions = {
             IconButton(onClick = onNotificationClick) {
                 Icon(
-                    imageVector = Icons.Default.Notifications,
+                    imageVector = Icons.AutoMirrored.Filled.List,
                     contentDescription = "Notifications"
                 )
             }
@@ -184,7 +203,7 @@ fun CardDialog(
     onDismiss: () -> Unit,
     onSave: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf(initialText) }
+    var text by rememberSaveable { mutableStateOf(initialText) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     AlertDialog(
@@ -197,8 +216,7 @@ fun CardDialog(
                     onValueChange = { text = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 56.dp, max = 120.dp) // Adjust height for 5 lines
-                        .verticalScroll(rememberScrollState()), // Enable scrolling
+                        .heightIn(min = 56.dp, max = 120.dp), // No vertical scroll
                     maxLines = 5
                 )
             }
@@ -236,8 +254,8 @@ fun CardLayout(
     onCheckedChange: (Boolean) -> Unit,
     onEdit: (String) -> Unit
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-    var showEditDialog by remember { mutableStateOf(false) }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+    var showEditDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showEditDialog) {
         CardDialog(
