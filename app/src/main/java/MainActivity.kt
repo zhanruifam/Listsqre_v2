@@ -1,9 +1,12 @@
 package com.example.listsqre_revamped
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,6 +36,7 @@ class MainActivity : ComponentActivity() {
     private val database by lazy { CardDatabase.getDatabase(this) }
     private val cardDao by lazy { database.cardDao() }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -57,7 +61,10 @@ class MainActivity : ComponentActivity() {
                             cardsState.addAll(newCards)
                             scope.launch { saveCards(newCards) }  // Save updated cards to DB
                         },
-                        onNotificationClick = { openNotificationActivity() }
+                        onNotificationClick = {
+                            openNotificationActivity()
+                        },
+                        this
                     )
                 }
             }
@@ -86,13 +93,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun CardManager(
     cards: List<Pair<String, Boolean>>,
     onCardsChanged: (List<Pair<String, Boolean>>) -> Unit,
-    onNotificationClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    context: Context
 ) {
     var showCreateDialog by rememberSaveable { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
+    var selectedTime by rememberSaveable { mutableStateOf("Select Time") }
 
     if (showCreateDialog) {
         CardDialog(
@@ -105,6 +116,17 @@ fun CardManager(
                 }
                 showCreateDialog = false
             }
+        )
+    }
+
+    if (showTimePicker) {
+        TimePickerDialog(
+            onDismissRequest = { showTimePicker = false },
+            onConfirm = { hour, minute ->
+                selectedTime = String.format("%02d:%02d", hour, minute)
+                showTimePicker = false
+            },
+            context
         )
     }
 
@@ -164,7 +186,7 @@ fun CardManager(
             }
 
             Button(
-                onClick = onNotificationClick
+                onClick = { showTimePicker = true }
             ) {
                 Icon(imageVector = Icons.Default.Notifications,
                     contentDescription = "Notifications")
@@ -244,6 +266,42 @@ fun CardDialog(
             ) { Text("Cancel") }
         },
         modifier = Modifier.wrapContentSize(Alignment.BottomCenter)
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDialog(
+    onDismissRequest: () -> Unit,
+    onConfirm: (hour: Int, minute: Int) -> Unit,
+    context: Context
+) {
+    val timePickerState = rememberTimePickerState()
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        // title = { Text("Pick a Time") },
+        text = { TimePicker(state = timePickerState) },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(timePickerState.hour, timePickerState.minute)
+                    scheduleNotification(context, timePickerState.hour, timePickerState.minute)
+                },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) { Text("Save") }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismissRequest,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) { Text("Cancel") }
+        }
     )
 }
 
