@@ -24,8 +24,8 @@ class NotificationReceiver : BroadcastReceiver() {
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_background) // Use your app's icon
-            .setContentTitle("Time Alert!")
-            .setContentText("It's time for your scheduled event.")
+            .setContentTitle("Scheduled Event")
+            .setContentText("It's time to check for pending items.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()

@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import com.example.listsqre_revamped.ui.ComposeAppTheme
 
-class NotificationActivity : ComponentActivity() {
+class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -24,7 +24,7 @@ class NotificationActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    notiCardManager() // temporary layout filler
+                    settingsCardManager() // temporary layout filler
                 }
             }
         }
@@ -32,16 +32,16 @@ class NotificationActivity : ComponentActivity() {
 }
 
 @Composable
-fun notiCardManager() {
+fun settingsCardManager() {
     Column(modifier = Modifier.fillMaxSize()) {
-        notiAppHeader()
+        settingsAppHeader()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun notiAppHeader() {
+fun settingsAppHeader() {
     TopAppBar(
-        title = { Text("Notification_list", fontSize = 20.sp) },
+        title = { Text("Settings", fontSize = 20.sp) },
     )
 }

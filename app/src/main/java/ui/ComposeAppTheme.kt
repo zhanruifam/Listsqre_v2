@@ -18,7 +18,7 @@ fun ComposeAppTheme(content: @Composable () -> Unit) {
 }
 
 fun darkColorScheme() = androidx.compose.material3.darkColorScheme(
-    primary = Color(0xFF254252),
+    primary = Color.DarkGray,
     secondary = Color(0xFF03DAC6),
     background = Color(0xFF121212),
     surface = Color(0xFF1E1E1E),

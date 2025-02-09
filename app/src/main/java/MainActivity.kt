@@ -13,12 +13,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -61,8 +61,8 @@ class MainActivity : ComponentActivity() {
                             cardsState.addAll(newCards)
                             scope.launch { saveCards(newCards) }  // Save updated cards to DB
                         },
-                        onNotificationClick = {
-                            openNotificationActivity()
+                        onSettingsClick = {
+                            openSettingsActivity()
                         },
                         this
                     )
@@ -88,8 +88,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun openNotificationActivity() {
-        startActivity(Intent(this, NotificationActivity::class.java))
+    private fun openSettingsActivity() {
+        startActivity(Intent(this, SettingsActivity::class.java))
     }
 }
 
@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
 fun CardManager(
     cards: List<Pair<String, Boolean>>,
     onCardsChanged: (List<Pair<String, Boolean>>) -> Unit,
-    onNotificationClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     context: Context
 ) {
     var showCreateDialog by rememberSaveable { mutableStateOf(false) }
@@ -131,7 +131,7 @@ fun CardManager(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        AppHeader(onNotificationClick)
+        AppHeader(onSettingsClick)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -204,14 +204,14 @@ fun CardManager(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppHeader(onNotificationClick: () -> Unit) {
+fun AppHeader(onSettingsClick: () -> Unit) {
     TopAppBar(
-        title = { Text("Listsqre_v2", fontSize = 20.sp) },
+        title = { Text("Listsqre", fontSize = 20.sp) },
         actions = {
-            IconButton(onClick = onNotificationClick) {
+            IconButton(onClick = onSettingsClick) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.List,
-                    contentDescription = "Notifications"
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings"
                 )
             }
         }
@@ -281,8 +281,16 @@ fun TimePickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        // title = { Text("Pick a Time") },
-        text = { TimePicker(state = timePickerState) },
+        text = {
+            TimePicker(
+                state = timePickerState,
+                colors = TimePickerDefaults.colors(
+                    clockDialColor = MaterialTheme.colorScheme.surfaceVariant,
+                    clockDialSelectedContentColor = MaterialTheme.colorScheme.primary,
+                    selectorColor = MaterialTheme.colorScheme.onPrimary // Change hand color here
+                )
+            )
+        },
         confirmButton = {
             TextButton(
                 onClick = {
