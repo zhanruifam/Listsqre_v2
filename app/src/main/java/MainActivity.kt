@@ -27,8 +27,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -268,6 +271,12 @@ fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
             ) {
                 DropdownMenuItem(
                     text = { Text("Move up") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowUp,
+                            contentDescription = "Settings"
+                        )
+                    },
                     onClick = {
                         menuExpanded = false
                         onMenuItemClick("shift")
@@ -275,6 +284,12 @@ fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
                 )
                 DropdownMenuItem(
                     text = { Text("Notify") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Settings"
+                        )
+                    },
                     onClick = {
                         menuExpanded = false
                         onMenuItemClick("notify")
@@ -282,6 +297,12 @@ fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
                 )
                 DropdownMenuItem(
                     text = { Text("Delete") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Settings"
+                        )
+                    },
                     onClick = {
                         menuExpanded = false
                         onMenuItemClick("delete")

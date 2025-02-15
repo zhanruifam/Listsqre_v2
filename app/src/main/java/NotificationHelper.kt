@@ -26,7 +26,7 @@ class NotificationReceiver : BroadcastReceiver() {
             .setSmallIcon(R.drawable.ic_launcher_background) // Use your app's icon
             .setContentTitle("Scheduled Event")
             .setContentText("It's time to check for pending items.")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true)
             .build()
 
@@ -51,7 +51,7 @@ fun scheduleNotification(context: Context, hour: Int, minute: Int) {
         set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
         if (before(Calendar.getInstance())) {
-            add(Calendar.DAY_OF_MONTH, 1) // If the time has already passed, schedule for the next day
+            add(Calendar.DAY_OF_MONTH, 1) // If time has already passed, schedule for the next day
         }
     }
 
