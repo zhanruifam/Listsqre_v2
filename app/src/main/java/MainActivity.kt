@@ -73,6 +73,9 @@ import com.example.listsqre_revamped.ui.ComposeAppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private val database by lazy { CardDatabase.getDatabase(this) }
@@ -248,17 +251,20 @@ fun CardManager(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
+    val currentDate = SimpleDateFormat("EEEE, MMM d", Locale.getDefault()).format(Date())
     var menuExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text("Listsqre", fontSize = 20.sp) },
+        title = { Text(currentDate, fontSize = 20.sp) },
         actions = {
+            /* TODO: add in settings feature later, removed for now
             IconButton(onClick = onSettingsClick) {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings"
                 )
             }
+            */
             IconButton(onClick = { menuExpanded = true }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
@@ -274,7 +280,7 @@ fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowUp,
-                            contentDescription = "Settings"
+                            contentDescription = "move_up"
                         )
                     },
                     onClick = {
@@ -287,7 +293,7 @@ fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Notifications,
-                            contentDescription = "Settings"
+                            contentDescription = "notify"
                         )
                     },
                     onClick = {
@@ -300,7 +306,7 @@ fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Settings"
+                            contentDescription = "delete"
                         )
                     },
                     onClick = {
