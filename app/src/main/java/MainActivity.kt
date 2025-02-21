@@ -26,13 +26,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -107,8 +107,8 @@ class MainActivity : ComponentActivity() {
                             cardsState.addAll(newCards)
                             scope.launch { saveCards(newCards) }  // Save updated cards to DB
                         },
-                        onSettingsClick = {
-                            openSettingsActivity()
+                        onListClick = {
+                            openListActivity()
                         },
                         this
                     )
@@ -134,8 +134,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun openSettingsActivity() {
-        startActivity(Intent(this, SettingsActivity::class.java))
+    private fun openListActivity() {
+        startActivity(Intent(this, ListActivity::class.java))
     }
 
     private fun permissionReq(context: Context) {
@@ -158,7 +158,7 @@ class MainActivity : ComponentActivity() {
 fun CardManager(
     cards: List<Pair<String, Boolean>>,
     onCardsChanged: (List<Pair<String, Boolean>>) -> Unit,
-    onSettingsClick: () -> Unit,
+    onListClick: () -> Unit,
     context: Context
 ) {
     var showCreateDialog by rememberSaveable { mutableStateOf(false) }
@@ -186,8 +186,9 @@ fun CardManager(
             onSave = { cardName ->
                 if (cardName.isNotBlank()) {
                     onCardsChanged(cards + Pair(cardName, false))
+                    Toast.makeText(context, "Item saved", Toast.LENGTH_SHORT).show()
                 }
-                showCreateDialog = false
+                // showCreateDialog = false
             }
         )
     }
@@ -204,7 +205,7 @@ fun CardManager(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        AppHeader(onSettingsClick, ::onMenuItemClick) // Pass menu click handler
+        AppHeader(onListClick, ::onMenuItemClick) // Pass menu click handler
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -250,21 +251,19 @@ fun CardManager(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppHeader(onSettingsClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
+fun AppHeader(onListClick: () -> Unit, onMenuItemClick: (String) -> Unit) {
     val currentDate = SimpleDateFormat("EEEE, MMM d", Locale.getDefault()).format(Date())
     var menuExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
         title = { Text(currentDate, fontSize = 20.sp) },
         actions = {
-            /* TODO: add in settings feature later, removed for now
-            IconButton(onClick = onSettingsClick) {
+            IconButton(onClick = onListClick) {
                 Icon(
-                    imageVector = Icons.Default.Settings,
+                    imageVector = Icons.AutoMirrored.Filled.List,
                     contentDescription = "Settings"
                 )
             }
-            */
             IconButton(onClick = { menuExpanded = true }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
@@ -378,13 +377,13 @@ fun TimePickerDialog(
     onConfirm: (hour: Int, minute: Int) -> Unit,
     context: Context
 ) {
-    val timePickerState = rememberTimePickerState()
+    val tps = rememberTimePickerState()
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
         text = {
             TimePicker(
-                state = timePickerState,
+                state = tps,
                 colors = TimePickerDefaults.colors(
                     clockDialColor = MaterialTheme.colorScheme.surfaceVariant,
                     clockDialSelectedContentColor = MaterialTheme.colorScheme.primary,
@@ -395,8 +394,10 @@ fun TimePickerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(timePickerState.hour, timePickerState.minute)
-                    scheduleNotification(context, timePickerState.hour, timePickerState.minute)
+                    val toastTime = String.format("%02d:%02d", tps.hour, tps.minute)
+                    onConfirm(tps.hour, tps.minute)
+                    scheduleNotification(context, tps.hour, tps.minute)
+                    Toast.makeText(context, "Set for $toastTime", Toast.LENGTH_SHORT).show()
                 },
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimary

@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import com.example.listsqre_revamped.ui.ComposeAppTheme
 
-class SettingsActivity : ComponentActivity() {
+class ListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -42,6 +42,6 @@ fun settingsCardManager() {
 @Composable
 fun settingsAppHeader() {
     TopAppBar(
-        title = { Text("Settings", fontSize = 20.sp) },
+        title = { Text("Notification list", fontSize = 20.sp) },
     )
 }
