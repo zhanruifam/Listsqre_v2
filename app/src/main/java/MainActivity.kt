@@ -197,7 +197,7 @@ fun CardManager(
         TimePickerDialog(
             onDismissRequest = { showTimePicker = false },
             onConfirm = { hour, minute ->
-                selectedTime = String.format("%02d:%02d", hour, minute)
+                selectedTime = String.format(Locale.US,"%02d:%02d", hour, minute)
                 showTimePicker = false
             },
             context
@@ -347,6 +347,7 @@ fun CardDialog(
             TextButton(
                 onClick = {
                     onSave(text)
+                    onDismiss()
                     keyboardController?.hide() // Hide keyboard after saving
                 },
                 colors = ButtonDefaults.textButtonColors(
@@ -394,7 +395,7 @@ fun TimePickerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val toastTime = String.format("%02d:%02d", tps.hour, tps.minute)
+                    val toastTime = String.format(Locale.US,"%02d:%02d", tps.hour, tps.minute)
                     onConfirm(tps.hour, tps.minute)
                     scheduleNotification(context, tps.hour, tps.minute)
                     Toast.makeText(context, "Set for $toastTime", Toast.LENGTH_SHORT).show()

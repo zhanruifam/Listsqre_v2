@@ -91,7 +91,7 @@ fun scheduleNotification(context: Context, hour: Int, minute: Int) {
                 pendingIntent
             )
         }
-    } catch (e: SecurityException) {
+    } catch (_: SecurityException) {
         // do nothing
     }
 }

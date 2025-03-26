@@ -24,7 +24,7 @@ class ListActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    settingsCardManager() // temporary layout filler
+                    SettingsCardManager() // temporary layout filler
                 }
             }
         }
@@ -32,15 +32,15 @@ class ListActivity : ComponentActivity() {
 }
 
 @Composable
-fun settingsCardManager() {
+fun SettingsCardManager() {
     Column(modifier = Modifier.fillMaxSize()) {
-        settingsAppHeader()
+        SettingsAppHeader()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun settingsAppHeader() {
+fun SettingsAppHeader() {
     TopAppBar(
         title = { Text("Notification list", fontSize = 20.sp) },
     )
