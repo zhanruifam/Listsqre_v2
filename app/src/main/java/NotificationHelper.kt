@@ -31,28 +31,28 @@ class NotificationReceiver : BroadcastReceiver() {
             )
             notificationManager.createNotificationChannel(channel)
         }
-        if(permissionState == PackageManager.PERMISSION_GRANTED) {
-            val openAppIntent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                1000, // Unique request code
-                openAppIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            val notification = NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.mipmap.listsqrev2)
-                .setContentTitle("Scheduled Event")
-                .setContentText("It's time to check for pending items.")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)  // Open app on click
-                .build()
-
-            notificationManager.notify(1001, notification)
-        } else {
-            // ActivityCompat.requestPermissions()
-        }
+//        if(permissionState == PackageManager.PERMISSION_GRANTED) {
+//            val openAppIntent = Intent(context, MainActivity::class.java).apply {
+//                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            }
+//            val pendingIntent = PendingIntent.getActivity(
+//                context,
+//                1000, // Unique request code
+//                openAppIntent,
+//                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//            )
+//            val notification = NotificationCompat.Builder(context, channelId)
+//                .setSmallIcon(R.mipmap.listsqrev2)
+//                .setContentTitle("Scheduled Event")
+//                .setContentText("It's time to check for pending items.")
+//                .setPriority(NotificationCompat.PRIORITY_HIGH)
+//                .setContentIntent(pendingIntent)  // Open app on click
+//                .build()
+//
+//            notificationManager.notify(1001, notification)
+//        } else {
+//            // ActivityCompat.requestPermissions()
+//        }
     }
 }
 
