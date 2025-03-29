@@ -1,5 +1,6 @@
 package com.example.listsqre_revamped
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,21 +16,27 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listsqre_revamped.ui.CardAppTheme
+import kotlin.jvm.java
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             CardAppTheme {
+                val app = LocalContext.current.applicationContext as MyApplication
+                val viewModel = remember {
+                    CardViewModel(app.database.cardDao())
+                }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CardAppScreen()
+                    CardAppScreen(viewModel = viewModel)
                 }
             }
         }
@@ -39,6 +46,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     var showDropdown by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
@@ -47,9 +55,11 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("LISTSQRE v2") },
+                title = { Text("All Items") },
                 actions = {
-                    IconButton(onClick = { /* Handle list icon click */ }) {
+                    IconButton(onClick = {
+                        context.startActivity(Intent(context, SpotlightActivity::class.java))
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = "List")
                     }
                     Box {
