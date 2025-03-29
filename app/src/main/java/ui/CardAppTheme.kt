@@ -11,7 +11,8 @@ import androidx.compose.ui.unit.sp
 private val LightColorScheme = lightColorScheme(
     primary = androidx.compose.ui.graphics.Color(0xFF6200EE),
     secondary = androidx.compose.ui.graphics.Color(0xFF03DAC6),
-    tertiary = androidx.compose.ui.graphics.Color(0xFF018786)
+    tertiary = androidx.compose.ui.graphics.Color(0xFF018786),
+    // background = androidx.compose.ui.graphics.Color(0xFF000000)
     // ... other colors
 )
 
