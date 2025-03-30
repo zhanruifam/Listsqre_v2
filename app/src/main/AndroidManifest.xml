@@ -44,6 +44,12 @@
             android:exported="true"
             android:theme="@style/Theme.Listsqre_Revamped.NoActionBar">
         </activity>
+
+        <activity
+            android:name=".CardDetailActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Listsqre_Revamped.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

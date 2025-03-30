@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -55,7 +56,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("All Items") },
+                title = { Text("All Lists") },
                 actions = {
                     IconButton(onClick = {
                         context.startActivity(Intent(context, SpotlightActivity::class.java))
@@ -111,7 +112,14 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                     onCheckedChange = { isChecked ->
                         viewModel.updateCardSelection(card.id, isChecked)
                     },
-                    onClick = { editingCard = card },
+                    onClick = {
+                        context.startActivity(
+                            Intent(context, CardDetailActivity::class.java).apply {
+                                putExtra("CARD_TITLE", card.title)
+                            }
+                        )
+                    },
+                    onEditClick = { editingCard = card },
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
@@ -121,7 +129,14 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                     onCheckedChange = { isChecked ->
                         viewModel.updateCardSelection(card.id, isChecked)
                     },
-                    onClick = { editingCard = card },
+                    onClick = {
+                        context.startActivity(
+                            Intent(context, CardDetailActivity::class.java).apply {
+                                putExtra("CARD_TITLE", card.title)
+                            }
+                        )
+                    },
+                    onEditClick = { editingCard = card },
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
@@ -272,12 +287,11 @@ fun CardItem(
     card: Card,
     onCheckedChange: (Boolean) -> Unit,
     onClick: () -> Unit,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (card.isPinned) {
                 MaterialTheme.colorScheme.primaryContainer
@@ -292,29 +306,43 @@ fun CardItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = card.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = card.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
             Checkbox(
                 checked = card.isSelected,
-                onCheckedChange = onCheckedChange
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier.clickable { }
             )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onClick() }
+            ) {
+                Column {
+                    Text(
+                        text = card.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = card.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            IconButton(
+                onClick = { onEditClick() },
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit"
+                )
+            }
         }
     }
 }
