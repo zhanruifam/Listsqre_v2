@@ -23,7 +23,10 @@ data class CardState(
     val cards: List<Card> = emptyList()
 )
 
-class CardViewModel(private val cardDao: CardDao) : ViewModel() {
+class CardViewModel(
+    private val cardDao: CardDao,
+    private val dynamicTableManager: DynamicTableViewModel
+) : ViewModel() {
     // State is now derived from the database flow
     val state: StateFlow<CardState> = cardDao.getAllCards()
         .map { cards -> CardState(cards) }
@@ -50,10 +53,16 @@ class CardViewModel(private val cardDao: CardDao) : ViewModel() {
         }
     }
 
-    fun addCard(title: String, description: String, isPinned: Boolean = false) {
+    fun addCard(title: String, description: String, isPinned: Boolean) {
         viewModelScope.launch {
-            val card = Card(title = title, description = description, isPinned = isPinned)
-            cardDao.insertCard(card)
+            val card = Card(
+                title = title,
+                description = description,
+                isPinned = isPinned,
+                isSelected = false
+            )
+            val cardId = cardDao.insertCard(card)
+            dynamicTableManager.createCardTable(cardId)
         }
     }
 
@@ -82,8 +91,21 @@ class CardViewModel(private val cardDao: CardDao) : ViewModel() {
         }
     }
 
+    fun deleteCard(card: Card) {
+        viewModelScope.launch {
+            cardDao.deleteCard(card)
+            dynamicTableManager.dropCardTable(card.id)
+        }
+    }
+
     fun deleteSelectedCards() {
         viewModelScope.launch {
+            val selectedCards = cardDao.getAllCards()
+                .first()
+                .filter { it.isSelected }
+            selectedCards.forEach { card ->
+                dynamicTableManager.dropCardTable(card.id)
+            }
             cardDao.deleteSelectedCards()
         }
     }

@@ -14,7 +14,7 @@ interface CardDao {
     fun getAllCards(): Flow<List<Card>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCard(card: Card)
+    suspend fun insertCard(card: Card): Long // Returns the inserted card ID
 
     @Update
     suspend fun updateCard(card: Card)

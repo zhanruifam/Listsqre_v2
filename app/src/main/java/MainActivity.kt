@@ -30,8 +30,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             CardAppTheme {
                 val app = LocalContext.current.applicationContext as MyApplication
+                val cardDao = app.database.cardDao()
+                val dynamicTableManager = DynamicTableViewModel(app.database)
                 val viewModel = remember {
-                    CardViewModel(app.database.cardDao())
+                    CardViewModel(cardDao, dynamicTableManager)
                 }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -116,6 +118,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                         context.startActivity(
                             Intent(context, CardDetailActivity::class.java).apply {
                                 putExtra("CARD_TITLE", card.title)
+                                // putExtra("CARD_ID", card.id)
                             }
                         )
                     },
@@ -133,6 +136,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                         context.startActivity(
                             Intent(context, CardDetailActivity::class.java).apply {
                                 putExtra("CARD_TITLE", card.title)
+                                // putExtra("CARD_ID", card.id)
                             }
                         )
                     },

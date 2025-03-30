@@ -13,3 +13,13 @@ data class Card(
     val isPinned: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )
+
+// for dynamic table
+data class CardField(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val fieldTitle: String,
+    val fieldDescription: String,
+    val isSelected: Boolean = false,
+    val isPinned: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis()
+)

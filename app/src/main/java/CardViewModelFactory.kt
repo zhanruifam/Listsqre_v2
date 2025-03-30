@@ -1,3 +1,4 @@
+/* --- not used ---
 package com.example.listsqre_revamped
 
 import androidx.lifecycle.ViewModel
@@ -12,3 +13,4 @@ class CardViewModelFactory(private val cardDao: CardDao) : ViewModelProvider.Fac
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+*/

@@ -55,7 +55,7 @@ fun SpotlightAppScreen() {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Add functionality for notification */ },
+                onClick = { /* showTimePicker = true */ },
                 modifier = Modifier
             ) {
                 Icon(Icons.Default.Notifications, contentDescription = "Notify")
