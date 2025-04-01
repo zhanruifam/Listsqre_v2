@@ -29,9 +29,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             CardAppTheme {
+                /* TODO: further optimization needed */
                 val app = LocalContext.current.applicationContext as MyApplication
+                val context = LocalContext.current
+                val db_ = remember { AppDatabaseCardField.getDatabase(context) }
                 val cardDao = app.database.cardDao()
-                val dynamicTableManager = DynamicTableViewModel(app.database)
+                val dynamicTableManager = DynamicTableManager(app.database, db_)
                 val viewModel = remember {
                     CardViewModel(cardDao, dynamicTableManager)
                 }
@@ -118,7 +121,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                         context.startActivity(
                             Intent(context, CardDetailActivity::class.java).apply {
                                 putExtra("CARD_TITLE", card.title)
-                                // putExtra("CARD_ID", card.id)
+                                putExtra("CARD_ID", card.id)
                             }
                         )
                     },
@@ -136,7 +139,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                         context.startActivity(
                             Intent(context, CardDetailActivity::class.java).apply {
                                 putExtra("CARD_TITLE", card.title)
-                                // putExtra("CARD_ID", card.id)
+                                putExtra("CARD_ID", card.id)
                             }
                         )
                     },

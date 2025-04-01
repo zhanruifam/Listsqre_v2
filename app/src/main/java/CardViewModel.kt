@@ -25,7 +25,7 @@ data class CardState(
 
 class CardViewModel(
     private val cardDao: CardDao,
-    private val dynamicTableManager: DynamicTableViewModel
+    private val dynamicTableManager: DynamicTableManager
 ) : ViewModel() {
     // State is now derived from the database flow
     val state: StateFlow<CardState> = cardDao.getAllCards()
@@ -39,10 +39,11 @@ class CardViewModel(
     init {
         // Initialize with some sample data if the database is empty
         viewModelScope.launch {
-            if (cardDao.getAllCards().first().isEmpty()) {
-                cardDao.insertCard(Card(title = "Welcome", description = "This is your first card", isPinned = true))
-                cardDao.insertCard(Card(title = "Getting Started", description = "Try adding more cards"))
-            }
+//            if (cardDao.getAllCards().first().isEmpty()) {
+//                cardDao.insertCard(Card(title = "Welcome", description = "This is your first card", isPinned = true))
+//                cardDao.insertCard(Card(title = "Getting Started", description = "Try adding more cards"))
+//            }
+            /* do nothing */
         }
     }
 
@@ -91,12 +92,12 @@ class CardViewModel(
         }
     }
 
-    fun deleteCard(card: Card) {
-        viewModelScope.launch {
-            cardDao.deleteCard(card)
-            dynamicTableManager.dropCardTable(card.id)
-        }
-    }
+//    fun deleteCard(card: Card) {
+//        viewModelScope.launch {
+//            cardDao.deleteCard(card)
+//            dynamicTableManager.dropCardTable(card.id)
+//        }
+//    }
 
     fun deleteSelectedCards() {
         viewModelScope.launch {

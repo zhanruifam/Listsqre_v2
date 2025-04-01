@@ -1,9 +1,7 @@
-/* --- not used ---
+
 package com.example.listsqre_revamped
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-
+/* --- not used ---
 class CardViewModelFactory(private val cardDao: CardDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CardViewModel::class.java)) {
