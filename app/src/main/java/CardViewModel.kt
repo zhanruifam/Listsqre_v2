@@ -87,4 +87,8 @@ class CardViewModel(private val cardDao: CardDao) : ViewModel() {
             cardDao.deleteSelectedCards()
         }
     }
+
+    suspend fun getSelectedCards(): List<Card> {
+        return cardDao.getAllCards().first().filter { it.isSelected }
+    }
 }

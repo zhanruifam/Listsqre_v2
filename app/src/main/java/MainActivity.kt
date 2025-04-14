@@ -241,7 +241,7 @@ fun EditCardDialog(
             Column {
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
+                    onValueChange = { /* title = it */ }, // cannot edit file name yet
                     label = { Text("Title") },
                     modifier = Modifier.fillMaxWidth()
                 )
