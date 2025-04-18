@@ -2,6 +2,7 @@ package com.example.listsqre_revamped
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -116,6 +117,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                         context.startActivity(
                             Intent(context, CardDetailActivity::class.java).apply {
                                 putExtra("CARD_TITLE", card.title)
+                                putExtra("CARD_ID", card.id)
                             }
                         )
                     },
@@ -133,6 +135,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                         context.startActivity(
                             Intent(context, CardDetailActivity::class.java).apply {
                                 putExtra("CARD_TITLE", card.title)
+                                putExtra("CARD_ID", card.id)
                             }
                         )
                     },

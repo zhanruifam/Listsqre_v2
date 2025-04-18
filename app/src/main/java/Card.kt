@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 // Card.kt
 @Entity(tableName = "cards")
 data class Card(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
     val description: String,
     val isSelected: Boolean = false,

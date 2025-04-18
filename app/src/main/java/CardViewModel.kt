@@ -9,21 +9,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/* --- not used in Card.kt ---
-data class Card(
-    val id: Int,
-    val title: String,
-    val description: String,
-    val isSelected: Boolean = false,
-    val isPinned: Boolean = false
-)
-*/
-
 data class CardState(
     val cards: List<Card> = emptyList()
 )
 
-class CardViewModel(private val cardDao: CardDao) : ViewModel() {
+class CardViewModel(
+    private val cardDao: CardDao
+) : ViewModel() {
     // State is now derived from the database flow
     val state: StateFlow<CardState> = cardDao.getAllCards()
         .map { cards -> CardState(cards) }
@@ -33,17 +25,7 @@ class CardViewModel(private val cardDao: CardDao) : ViewModel() {
             initialValue = CardState()
         )
 
-    init {
-        // Initialize with some sample data if the database is empty
-        viewModelScope.launch {
-            if (cardDao.getAllCards().first().isEmpty()) {
-                cardDao.insertCard(Card(title = "Welcome", description = "This is your first card", isPinned = true))
-                cardDao.insertCard(Card(title = "Getting Started", description = "Try adding more cards"))
-            }
-        }
-    }
-
-    fun updateCard(id: Int, title: String, description: String, isPinned: Boolean) {
+    fun updateCard(id: Long, title: String, description: String, isPinned: Boolean) {
         viewModelScope.launch {
             val card = Card(id, title, description, isPinned = isPinned)
             cardDao.updateCard(card)
@@ -57,7 +39,7 @@ class CardViewModel(private val cardDao: CardDao) : ViewModel() {
         }
     }
 
-    fun updateCardSelection(cardId: Int, isSelected: Boolean) {
+    fun updateCardSelection(cardId: Long, isSelected: Boolean) {
         viewModelScope.launch {
             // First get the current card
             val currentCards = cardDao.getAllCards().first()
