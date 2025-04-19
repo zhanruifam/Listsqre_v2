@@ -48,17 +48,23 @@ fun SpotlightAppScreen() {
         TimePickerDialog(
             context,
             { _, hour: Int, minute: Int ->
-                Toast.makeText(context, "Time set: %02d:%02d".format(hour, minute), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Time set: %02d:%02d".format(hour, minute),
+                    Toast.LENGTH_SHORT
+                ).show()
             },
             12, 0, false
         )
     }
+
     if (showTimePicker) {
         LaunchedEffect(Unit) {
             timePickerDialog.show()
             showTimePicker = false
         }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(

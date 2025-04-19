@@ -3,7 +3,6 @@ package com.example.listsqre_revamped
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -27,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-// import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listsqre_revamped.ui.CardAppTheme
@@ -74,10 +73,48 @@ fun CardDetailAppScreen(
     var editingItem by remember { mutableStateOf<CardItem?>(null) }
     val selectedItems = remember { mutableStateListOf<Long>() }
 
+    if (showAddDialog) {
+        AddItemDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { title, description, isPinned ->
+                val newItem = CardItem(
+                    cardId = cardId,
+                    title = title,
+                    description = description,
+                    isPinned = isPinned
+                )
+                viewModel.insertCardItem(newItem)
+                showAddDialog = false
+            }
+        )
+    }
+
+    editingItem?.let { item ->
+        EditItemDialog(
+            item = item,
+            onDismiss = { editingItem = null },
+            onSave = { title, description, isPinned ->
+                val updated = item.copy(
+                    title = title,
+                    description = description,
+                    isPinned = isPinned
+                )
+                viewModel.updateCardItem(updated)
+                editingItem = null
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(cardTitle) },
+                title = {
+                    Text(
+                        text = cardTitle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         (context as? Activity)?.finish()
@@ -147,42 +184,11 @@ fun CardDetailAppScreen(
                         else selectedItems.remove(item.id)
                     },
                     onClick = { /* Optional: single item click */ },
-                    onEditClick = { editingItem = item }
+                    onEditClick = { editingItem = item },
+                    modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
         }
-    }
-
-    if (showAddDialog) {
-        AddItemDialog(
-            onDismiss = { showAddDialog = false },
-            onConfirm = { title, description, isPinned ->
-                val newItem = CardItem(
-                    cardId = cardId,
-                    title = title,
-                    description = description,
-                    isPinned = isPinned
-                )
-                viewModel.insertCardItem(newItem)
-                showAddDialog = false
-            }
-        )
-    }
-
-    editingItem?.let { item ->
-        EditItemDialog(
-            item = item,
-            onDismiss = { editingItem = null },
-            onSave = { title, description, isPinned ->
-                val updated = item.copy(
-                    title = title,
-                    description = description,
-                    isPinned = isPinned
-                )
-                viewModel.updateCardItem(updated)
-                editingItem = null
-            }
-        )
     }
 }
 
@@ -199,21 +205,25 @@ fun AddItemDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Card") },
+        title = { Text("Add New Item") },
         text = {
             Column {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -264,14 +274,18 @@ fun EditItemDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -331,22 +345,37 @@ fun CardDetailItem(
                 checked = isSelected,
                 onCheckedChange = onCheckedChange
             )
-            Column(
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .clickable { onClick() }
             ) {
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = item.description,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Column {
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = item.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
-            IconButton(onClick = onEditClick) {
-                Icon(Icons.Default.Edit, contentDescription = "Edit")
+            IconButton(
+                onClick = { onEditClick() },
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit"
+                )
             }
         }
     }

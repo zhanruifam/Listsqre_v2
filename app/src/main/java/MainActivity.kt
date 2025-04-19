@@ -2,7 +2,6 @@ package com.example.listsqre_revamped
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -53,6 +52,27 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
     var showDropdown by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingCard by remember { mutableStateOf<Card?>(null) }
+
+    if (showAddDialog) {
+        AddCardDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { title, description, isPinned ->
+                viewModel.addCard(title, description, isPinned)
+                showAddDialog = false
+            }
+        )
+    }
+
+    editingCard?.let { card ->
+        EditCardDialog(
+            card = card,
+            onDismiss = { editingCard = null },
+            onSave = { title, description, isPinned ->
+                viewModel.updateCard(card.id, title, description, isPinned)
+                editingCard = null
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -107,25 +127,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                 .padding(padding),
             contentPadding = PaddingValues(16.dp)
         ) {
-            items(state.cards.filter { it.isPinned }) { card ->
-                CardItem(
-                    card = card,
-                    onCheckedChange = { isChecked ->
-                        viewModel.updateCardSelection(card.id, isChecked)
-                    },
-                    onClick = {
-                        context.startActivity(
-                            Intent(context, CardDetailActivity::class.java).apply {
-                                putExtra("CARD_TITLE", card.title)
-                                putExtra("CARD_ID", card.id)
-                            }
-                        )
-                    },
-                    onEditClick = { editingCard = card },
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
-            }
-            items(state.cards.filter { !it.isPinned }) { card ->
+            items(state.cards) { card ->
                 CardItem(
                     card = card,
                     onCheckedChange = { isChecked ->
@@ -144,27 +146,6 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                 )
             }
         }
-    }
-
-    if (showAddDialog) {
-        AddCardDialog(
-            onDismiss = { showAddDialog = false },
-            onConfirm = { title, description, isPinned ->
-                viewModel.addCard(title, description, isPinned)
-                showAddDialog = false
-            }
-        )
-    }
-
-    editingCard?.let { card ->
-        EditCardDialog(
-            card = card,
-            onDismiss = { editingCard = null },
-            onSave = { title, description, isPinned ->
-                viewModel.updateCard(card.id, title, description, isPinned)
-                editingCard = null
-            }
-        )
     }
 }
 
@@ -188,14 +169,18 @@ fun AddCardDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -246,14 +231,18 @@ fun EditCardDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -323,7 +312,7 @@ fun CardItem(
                     Text(
                         text = card.title,
                         style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
+                        maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth()
                     )
