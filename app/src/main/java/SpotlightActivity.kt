@@ -2,10 +2,13 @@ package com.example.listsqre_revamped
 
 import android.app.Activity
 import android.app.TimePickerDialog
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -22,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.listsqre_revamped.ui.CardAppTheme
+import java.util.Calendar
 
 class SpotlightActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -39,28 +44,23 @@ class SpotlightActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpotlightAppScreen() {
     val context = LocalContext.current
     var showTimePicker by remember { mutableStateOf(false) }
-    val timePickerDialog = remember {
-        TimePickerDialog(
-            context,
-            { _, hour: Int, minute: Int ->
+
+    if (showTimePicker) {
+        LaunchedEffect(Unit) {
+            showTimePickerDialog(context) { hour, minute ->
+                scheduleNotification(context, hour, minute)
                 Toast.makeText(
                     context,
                     "Time set: %02d:%02d".format(hour, minute),
                     Toast.LENGTH_SHORT
                 ).show()
-            },
-            12, 0, false
-        )
-    }
-
-    if (showTimePicker) {
-        LaunchedEffect(Unit) {
-            timePickerDialog.show()
+            }
             showTimePicker = false
         }
     }
@@ -99,4 +99,15 @@ fun SpotlightAppScreen() {
             // TODO: Add spotlight content
         }
     }
+}
+
+fun showTimePickerDialog(context: Context, onTimeSelected: (hour: Int, minute: Int) -> Unit) {
+    val now = Calendar.getInstance()
+    TimePickerDialog(
+        context,
+        { _, hour: Int, minute: Int -> onTimeSelected(hour, minute) },
+        now.get(Calendar.HOUR_OF_DAY),
+        now.get(Calendar.MINUTE),
+        false
+    ).show()
 }

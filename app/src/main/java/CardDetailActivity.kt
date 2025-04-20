@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listsqre_revamped.ui.CardAppTheme
+import androidx.core.net.toUri
 
 class CardDetailActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,7 +184,12 @@ fun CardDetailAppScreen(
                         if (checked) selectedItems.add(item.id)
                         else selectedItems.remove(item.id)
                     },
-                    onClick = { /* Optional: single item click */ },
+                    onClick = {
+                        if (item.title.isValidUrl()) {
+                            val intent = Intent(Intent.ACTION_VIEW, item.title.toUri())
+                            context.startActivity(intent)
+                        }
+                    },
                     onEditClick = { editingItem = item },
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
@@ -211,7 +217,7 @@ fun AddItemDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
+                    placeholder = { Text("Title") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
@@ -220,7 +226,7 @@ fun AddItemDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    placeholder = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
@@ -273,7 +279,7 @@ fun EditItemDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
+                    placeholder  = { Text("Title") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
@@ -282,7 +288,7 @@ fun EditItemDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    placeholder  = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
@@ -378,5 +384,15 @@ fun CardDetailItem(
                 )
             }
         }
+    }
+}
+
+/* URL validity check, only for card items */
+fun String.isValidUrl(): Boolean {
+    return try {
+        val uri = this.toUri()
+        uri.scheme?.startsWith("http") == true
+    } catch (e: Exception) {
+        false
     }
 }

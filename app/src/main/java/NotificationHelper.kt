@@ -15,44 +15,55 @@ import androidx.core.content.ContextCompat
 import java.util.Calendar
 
 class NotificationReceiver : BroadcastReceiver() {
+    companion object {
+        private const val CHANNEL_ID = "time_picker_notification"
+        private const val CHANNEL_NAME = "Time Picker Alerts"
+        private const val REQUEST_CODE = 1000
+        private const val NOTIFICATION_ID = 1001
+        const val PERMISSION = "android.permission.POST_NOTIFICATIONS"
+    }
+
     override fun onReceive(context: Context, intent: Intent?) {
-        val permission = "android.permission.POST_NOTIFICATIONS"
-        val permissionState = ContextCompat.checkSelfPermission(context, permission)
+        // Check notification permission
+        if (ContextCompat.checkSelfPermission(context, PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+            return // Permission not granted
+        }
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        createNotificationChannel(notificationManager)
 
-        val channelId = "time_picker_notification"
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Prepare intent to launch activity when notification is clicked
+        // val openAppIntent = Intent(context, SpotlightActivity::class.java).apply {
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            REQUEST_CODE,
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
+        // Build and show the notification
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.mipmap.listsqrev2)
+            .setContentTitle("Scheduled Event")
+            .setContentText("It's time to check for pending items.")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        notificationManager.notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun createNotificationChannel(notificationManager: NotificationManager) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId,
-                "Time Picker Alerts",
+                CHANNEL_ID,
+                CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
         }
-//        if(permissionState == PackageManager.PERMISSION_GRANTED) {
-//            val openAppIntent = Intent(context, MainActivity::class.java).apply {
-//                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//            }
-//            val pendingIntent = PendingIntent.getActivity(
-//                context,
-//                1000, // Unique request code
-//                openAppIntent,
-//                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//            )
-//            val notification = NotificationCompat.Builder(context, channelId)
-//                .setSmallIcon(R.mipmap.listsqrev2)
-//                .setContentTitle("Scheduled Event")
-//                .setContentText("It's time to check for pending items.")
-//                .setPriority(NotificationCompat.PRIORITY_HIGH)
-//                .setContentIntent(pendingIntent)  // Open app on click
-//                .build()
-//
-//            notificationManager.notify(1001, notification)
-//        } else {
-//            // ActivityCompat.requestPermissions()
-//        }
     }
 }
 

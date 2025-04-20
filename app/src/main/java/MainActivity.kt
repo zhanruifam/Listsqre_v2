@@ -1,9 +1,13 @@
 package com.example.listsqre_revamped
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,13 +24,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listsqre_revamped.ui.CardAppTheme
 import kotlin.jvm.java
 
 class MainActivity : ComponentActivity() {
+    /* Definition of permission launcher needs to be done at the class level */
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted) {
+                Toast.makeText(
+                    this,
+                    "Permission denied, go to settings",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        permissionRequest()
         setContent {
             CardAppTheme {
                 val app = LocalContext.current.applicationContext as MyApplication
@@ -39,6 +57,17 @@ class MainActivity : ComponentActivity() {
                 ) {
                     CardAppScreen(viewModel = viewModel)
                 }
+            }
+        }
+    }
+
+    private fun permissionRequest() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permission = NotificationReceiver.PERMISSION
+            val permissionState = ContextCompat.checkSelfPermission(this, permission)
+
+            if (permissionState != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(permission)
             }
         }
     }
@@ -168,7 +197,7 @@ fun AddCardDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
+                    placeholder = { Text("Title") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
@@ -177,7 +206,7 @@ fun AddCardDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    placeholder = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
@@ -230,7 +259,7 @@ fun EditCardDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
+                    placeholder = { Text("Title") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
@@ -239,7 +268,7 @@ fun EditCardDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    placeholder = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     singleLine = false
