@@ -28,6 +28,7 @@ class NotificationReceiver : BroadcastReceiver() {
         if (ContextCompat.checkSelfPermission(context, PERMISSION) != PackageManager.PERMISSION_GRANTED) {
             return // Permission not granted
         }
+        val description = intent?.getStringExtra("DESCRIPTION") ?: "Check for pending items"
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel(notificationManager)
 
@@ -47,7 +48,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.listsqrev2)
             .setContentTitle("Scheduled Event")
-            .setContentText("It's time to check for pending items.")
+            .setContentText(description)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .build()
@@ -68,9 +69,11 @@ class NotificationReceiver : BroadcastReceiver() {
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
-fun scheduleNotification(context: Context, hour: Int, minute: Int) {
+fun scheduleNotification(context: Context, hour: Int, minute: Int, desc: String) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val alarmIntent = Intent(context, NotificationReceiver::class.java)
+    val alarmIntent = Intent(context, NotificationReceiver::class.java).apply {
+        putExtra("DESCRIPTION", desc)
+    }
     val pendingIntent = PendingIntent.getBroadcast(
         context,
         1001, // Unique request code

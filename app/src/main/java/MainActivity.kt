@@ -109,7 +109,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                 title = { Text("All Lists") },
                 actions = {
                     IconButton(onClick = {
-                        context.startActivity(Intent(context, SpotlightActivity::class.java))
+                        context.startActivity(Intent(context, NotificationActivity::class.java))
                     }) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = "List")
                     }
@@ -156,7 +156,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                 .padding(padding),
             contentPadding = PaddingValues(16.dp)
         ) {
-            items(state.cards) { card ->
+            items(state.cards, key = { it.id }) { card ->
                 CardItem(
                     card = card,
                     onCheckedChange = { isChecked ->
@@ -191,7 +191,7 @@ fun AddCardDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Card") },
+        title = { Text("Add New List") },
         text = {
             Column {
                 OutlinedTextField(
@@ -253,7 +253,7 @@ fun EditCardDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Card") },
+        title = { Text("Edit List") },
         text = {
             Column {
                 OutlinedTextField(

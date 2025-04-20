@@ -128,7 +128,7 @@ fun CardDetailAppScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        context.startActivity(Intent(context, SpotlightActivity::class.java))
+                        context.startActivity(Intent(context, NotificationActivity::class.java))
                     }) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = "List")
                     }
@@ -144,6 +144,7 @@ fun CardDetailAppScreen(
                                 text = { Text("Pin selected") },
                                 onClick = {
                                     viewModel.setPinnedForItems(cardId, selectedItems.toList(), true)
+                                    selectedItems.clear()
                                     showDropdown = false
                                 }
                             )
@@ -176,7 +177,7 @@ fun CardDetailAppScreen(
                 .padding(padding),
             contentPadding = PaddingValues(16.dp)
         ) {
-            items(cardItems) { item ->
+            items(cardItems, key = { it.id }) { item ->
                 CardDetailItem(
                     item = item,
                     isSelected = selectedItems.contains(item.id),
@@ -392,7 +393,7 @@ fun String.isValidUrl(): Boolean {
     return try {
         val uri = this.toUri()
         uri.scheme?.startsWith("http") == true
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         false
     }
 }

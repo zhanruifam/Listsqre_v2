@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardDao {
-    @Query("SELECT * FROM cards ORDER BY isPinned DESC, id DESC")
+    @Query("SELECT * FROM cards ORDER BY isPinned DESC, id ASC")
     fun getAllCards(): Flow<List<Card>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
