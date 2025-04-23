@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.listsqre_revamped.ui.CardAppTheme
 import java.util.Calendar
@@ -126,7 +128,8 @@ fun TextFieldTimePicker(
             },
             label = { Text("Hour (24hr)") },
             modifier = Modifier.weight(1f),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         Text(":", modifier = Modifier.padding(bottom = 0.dp))
@@ -141,7 +144,8 @@ fun TextFieldTimePicker(
             },
             label = { Text("Minute (24hr)") },
             modifier = Modifier.weight(1f),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
     }
 }
