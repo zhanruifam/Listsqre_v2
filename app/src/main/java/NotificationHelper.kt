@@ -12,6 +12,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.room.Room
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class NotificationReceiver : BroadcastReceiver() {
@@ -27,8 +31,9 @@ class NotificationReceiver : BroadcastReceiver() {
             return
         }
 
-        val description = intent?.getStringExtra("DESCRIPTION") ?: "Check for pending items"
+        val rawDescription = intent?.getStringExtra("DESCRIPTION") ?: "Check for pending items"
         val notificationId = intent?.getIntExtra("NID", System.currentTimeMillis().toInt()) ?: 1001
+        val description = "$rawDescription\nUnique Id: $notificationId"
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel(notificationManager)
@@ -46,13 +51,24 @@ class NotificationReceiver : BroadcastReceiver() {
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.listsqrev2)
-            .setContentTitle(description)
-            .setContentText("Unique Id: $notificationId")
+            .setContentTitle("Scheduled reminder:")
+            .setContentText(description)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(description)) // for expanded view
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .build()
 
         notificationManager.notify(notificationId, notification)
+
+        // Delete from Room DB using WorkManager or ViewModel-less approach
+        CoroutineScope(Dispatchers.IO).launch {
+            val db = Room.databaseBuilder(
+                context,
+                AppDatabase::class.java,
+                "card-database"
+            ).build()
+            db.notificationDao().deleteByUniqueId(notificationId)
+        }
     }
 
     private fun createNotificationChannel(notificationManager: NotificationManager) {
@@ -68,7 +84,7 @@ class NotificationReceiver : BroadcastReceiver() {
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
-fun scheduleNotification(context: Context, hour: Int, minute: Int, desc: String) {
+fun scheduleNotification(context: Context, hour: Int, minute: Int, desc: String): Int {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
 
@@ -111,4 +127,18 @@ fun scheduleNotification(context: Context, hour: Int, minute: Int, desc: String)
     } catch (_: SecurityException) {
         // Handle or log
     }
+
+    return notificationId
+}
+
+fun cancelNotification(context: Context, notificationId: Int) {
+    val intent = Intent(context, NotificationReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(
+        context,
+        notificationId, // Must match the request code used in scheduleNotification
+        intent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    alarmManager.cancel(pendingIntent)
 }

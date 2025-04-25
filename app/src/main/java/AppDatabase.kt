@@ -5,13 +5,14 @@ import androidx.room.RoomDatabase
 
 // AppDatabase.kt
 @Database(
-    entities = [Card::class, CardItem::class],
+    entities = [Card::class, CardItem::class, NotificationEntity::class],
     version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cardDao(): CardDao
     abstract fun cardItemDao(): CardItemDao
+    abstract fun notificationDao(): NotificationDao
 
     companion object /* no companion object */
 }
