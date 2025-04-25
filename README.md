@@ -1,13 +1,12 @@
 # Listsqre Revamped
 
-Listsqre Revamped is an Android application built with Jetpack Compose that allows users to create, manage, and organize task cards. It features a sleek and interactive UI with functionalities such as adding, editing, deleting, and reordering tasks. Additionally, it provides notification scheduling for reminders.
+Listsqre is an Android application built with Jetpack Compose that allows users to create, manage, and organize task cards. It features an interactive UI with functionalities such as adding, editing, deleting, and reordering tasks. Additionally, it provides notification scheduling for reminders.
 
 ## Features
 - Create and manage task cards
 - Edit task names
-- Mark tasks as completed (checkbox)
 - Delete checked tasks
-- Reorder tasks (move checked items to the top)
+- Reorder/Pin tasks (move checked items to the top)
 - Schedule notifications with a time picker
 - Modern Material 3 UI with Jetpack Compose
 
@@ -21,7 +20,7 @@ Listsqre Revamped is an Android application built with Jetpack Compose that allo
 ## Installation
 1. Clone this repository:
    ```sh
-   git clone https://github.com/yourusername/listsqre-revamped.git
+   git clone https://github.com/zhanruifam/Listsqre_v2.git
    ```
 2. Open the project in Android Studio.
 3. Sync dependencies and build the project.
@@ -34,10 +33,13 @@ Listsqre Revamped is an Android application built with Jetpack Compose that allo
     - Tap the edit icon next to a task to modify its name.
 3. **Deleting Completed Tasks**
     - Select tasks using checkboxes and use the menu option to delete checked tasks.
-4. **Reordering Tasks**
+4. **Reordering/Pinning Tasks**
     - Use the menu option to move checked items to the top.
 5. **Setting Notifications**
     - Select "Notify" from the menu and choose a time for reminders.
 
 ## Permissions
 - The app requests the `POST_NOTIFICATIONS` permission for scheduling reminders.
+
+## Support & Feedback
+- If you encounter issues or have suggestions, please open an issue or contact the developer.
