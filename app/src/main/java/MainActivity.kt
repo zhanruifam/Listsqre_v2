@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
 fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val isLoading by viewModel.isLoadingForList.collectAsState()
     var showDropdown by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingCard by remember { mutableStateOf<Card?>(null) }
@@ -111,7 +112,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                     IconButton(onClick = {
                         context.startActivity(Intent(context, NotificationActivity::class.java))
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.List, contentDescription = "List")
+                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
                     }
                     Box {
                         IconButton(onClick = { showDropdown = true }) {
@@ -150,31 +151,40 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp)
-        ) {
-            items(state.cards, key = { it.id }) { card ->
-                CardItem(
-                    card = card,
-                    onCheckedChange = { isChecked ->
-                        viewModel.updateCardSelection(card.id, isChecked)
-                    },
-                    onClick = {
-                        context.startActivity(
-                            Intent(context, CardDetailActivity::class.java).apply {
-                                putExtra("CARD_TITLE", card.title)
-                                putExtra("CARD_ID", card.id)
-                            }
-                        )
-                    },
-                    onEditClick = { editingCard = card },
-                    modifier = Modifier.padding(vertical = 4.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (isLoading) {
+                Text(
+                    text = "Getting things ready...",
+                    modifier = Modifier.align(Alignment.Center)
                 )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    items(state.cards, key = { it.id }) { card ->
+                        CardItem(
+                            card = card,
+                            onCheckedChange = { isChecked ->
+                                viewModel.updateCardSelection(card.id, isChecked)
+                            },
+                            onClick = {
+                                context.startActivity(
+                                    Intent(context, CardDetailActivity::class.java).apply {
+                                        putExtra("CARD_TITLE", card.title)
+                                        putExtra("CARD_ID", card.id)
+                                    }
+                                )
+                            },
+                            onEditClick = { editingCard = card },
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
             }
-        }
+            }
     }
 }
 
