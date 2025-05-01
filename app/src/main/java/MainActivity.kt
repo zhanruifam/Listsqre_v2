@@ -154,7 +154,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (isLoading) {
                 Text(
-                    text = "Getting things ready...",
+                    text = "Please wait...",
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
@@ -164,21 +164,21 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                         .padding(padding),
                     contentPadding = PaddingValues(16.dp)
                 ) {
-                    items(state.cards, key = { it.id }) { card ->
+                    items(state.cards, key = { it.id }) { item ->
                         CardItem(
-                            card = card,
+                            card = item,
                             onCheckedChange = { isChecked ->
-                                viewModel.updateCardSelection(card.id, isChecked)
+                                viewModel.updateCardSelection(item.id, isChecked)
                             },
                             onClick = {
                                 context.startActivity(
                                     Intent(context, CardDetailActivity::class.java).apply {
-                                        putExtra("CARD_TITLE", card.title)
-                                        putExtra("CARD_ID", card.id)
+                                        putExtra("CARD_TITLE", item.title)
+                                        putExtra("CARD_ID", item.id)
                                     }
                                 )
                             },
-                            onEditClick = { editingCard = card },
+                            onEditClick = { editingCard = item },
                             modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }

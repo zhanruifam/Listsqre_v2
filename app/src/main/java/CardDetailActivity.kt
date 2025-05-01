@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -68,12 +69,16 @@ fun CardDetailAppScreen(
     viewModel: CardItemViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val cardItems by viewModel.getItemsForCard(cardId).collectAsState(initial = emptyList())
+    val cardItems by viewModel.itemsForCard.collectAsState()
     val isLoading by viewModel.isLoadingForItems.collectAsState()
     var showDropdown by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<CardItem?>(null) }
     val selectedItems = remember { mutableStateListOf<Long>() }
+
+    LaunchedEffect(cardId) {
+        viewModel.setCardId(cardId)
+    }
 
     if (showAddDialog) {
         AddItemDialog(
@@ -175,7 +180,7 @@ fun CardDetailAppScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             if (isLoading) {
                 Text(
-                    text = "Getting things ready...",
+                    text = "Please wait...",
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {

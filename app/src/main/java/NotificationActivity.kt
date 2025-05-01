@@ -62,7 +62,8 @@ class NotificationActivity : ComponentActivity() {
 @Composable
 fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
     val context = LocalContext.current
-    val notifications by viewModel.notifications.collectAsState(initial = emptyList())
+    val notifications by viewModel.notifications.collectAsState()
+    val isLoading by viewModel.isLoadingForNoti.collectAsState()
     var showTimePicker by remember { mutableStateOf(false) }
 
     if (showTimePicker) {
@@ -112,23 +113,32 @@ fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            // verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(notifications, key = { it.id }) { notification ->
-                NotificationCard(
-                    notification = notification,
-                    onCancel = {
-                        cancelNotification(context, it.uniqueId, it.description)
-                        viewModel.cancelNotification(it)
-                    },
-                    onClick = { /* do nothing as of now */ },
-                    modifier = Modifier.padding(vertical = 4.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (isLoading) {
+                Text(
+                    text = "Please wait...",
+                    modifier = Modifier.align(Alignment.Center)
                 )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(16.dp),
+                    // verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(notifications.cards, key = { it.id }) { item ->
+                        NotificationCard(
+                            notification = item,
+                            onCancel = {
+                                cancelNotification(context, item.uniqueId, item.description)
+                                viewModel.cancelNotification(item)
+                            },
+                            onClick = { /* do nothing as of now */ },
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
             }
         }
     }
