@@ -66,6 +66,70 @@ fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
     val isLoading by viewModel.isLoadingForNoti.collectAsState()
     var showTimePicker by remember { mutableStateOf(false) }
 
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Reminders") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        (context as? Activity)?.finish()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showTimePicker = true },
+                modifier = Modifier.defaultMinSize(
+                    minWidth = 64.dp,
+                    minHeight = 64.dp
+                )
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
+        },
+        floatingActionButtonPosition = FabPosition.Center
+    ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (isLoading) {
+                Text(
+                    text = "Please wait...",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = 96.dp /* padding 64 + 16 + 16 */
+                    ),
+                    // verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(notifications.cards, key = { it.id }) { item ->
+                        NotificationCard(
+                            notification = item,
+                            onCancel = {
+                                cancelNotification(context, item.uniqueId, item.description)
+                                viewModel.cancelNotification(item)
+                            },
+                            onClick = { /* do nothing as of now */ },
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     if (showTimePicker) {
         TimePickerDialog(
             onDismiss = { showTimePicker = false },
@@ -85,62 +149,6 @@ fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
                 viewModel.insert(notification)
             }
         )
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Notifications") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        (context as? Activity)?.finish()
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showTimePicker = true },
-                modifier = Modifier
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Notify")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { padding ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (isLoading) {
-                Text(
-                    text = "Please wait...",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentPadding = PaddingValues(16.dp),
-                    // verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(notifications.cards, key = { it.id }) { item ->
-                        NotificationCard(
-                            notification = item,
-                            onCancel = {
-                                cancelNotification(context, item.uniqueId, item.description)
-                                viewModel.cancelNotification(item)
-                            },
-                            onClick = { /* do nothing as of now */ },
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -219,7 +227,7 @@ fun TimePickerDialog(
                 Text("Cancel")
             }
         },
-        title = { Text("Set Notification") },
+        title = { Text("Set Reminder") },
         text = {
             Column {
                 OutlinedTextField(

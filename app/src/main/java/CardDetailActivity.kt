@@ -13,8 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -80,6 +79,107 @@ fun CardDetailAppScreen(
         viewModel.setCardId(cardId)
     }
 
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = cardTitle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        (context as? Activity)?.finish()
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    Box {
+                        IconButton(onClick = { showDropdown = true }) {
+                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "More")
+                        }
+                        DropdownMenu(
+                            expanded = showDropdown,
+                            onDismissRequest = { showDropdown = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Pin up selected") },
+                                onClick = {
+                                    viewModel.setPinnedForItems(cardId, selectedItems.toList(), true)
+                                    selectedItems.clear()
+                                    showDropdown = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete selected") },
+                                onClick = {
+                                    viewModel.deleteItemsByIds(cardId, selectedItems.toList())
+                                    selectedItems.clear()
+                                    showDropdown = false
+                                }
+                            )
+                        }
+                    }
+                }
+            )
+        },floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                modifier = Modifier.defaultMinSize(
+                    minWidth = 64.dp,
+                    minHeight = 64.dp
+                )
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
+        },
+
+        floatingActionButtonPosition = FabPosition.Center
+    ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (isLoading) {
+                Text(
+                    text = "Please wait...",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = 96.dp /* padding 64 + 16 + 16 */
+                    ),
+                ) {
+                    items(cardItems, key = { it.id }) { item ->
+                        CardDetailItem(
+                            item = item,
+                            isSelected = selectedItems.contains(item.id),
+                            onCheckedChange = { checked ->
+                                if (checked) selectedItems.add(item.id)
+                                else selectedItems.remove(item.id)
+                            },
+                            onClick = {
+                                if (item.title.isValidUrl()) {
+                                    val intent = Intent(Intent.ACTION_VIEW, item.title.toUri())
+                                    context.startActivity(intent)
+                                }
+                            },
+                            onEditClick = { editingItem = item },
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     if (showAddDialog) {
         AddItemDialog(
             onDismiss = { showAddDialog = false },
@@ -110,107 +210,6 @@ fun CardDetailAppScreen(
                 editingItem = null
             }
         )
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = cardTitle,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        (context as? Activity)?.finish()
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        context.startActivity(Intent(context, NotificationActivity::class.java))
-                    }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
-                    }
-                    Box {
-                        IconButton(onClick = { showDropdown = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More")
-                        }
-                        DropdownMenu(
-                            expanded = showDropdown,
-                            onDismissRequest = { showDropdown = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Pin selected") },
-                                onClick = {
-                                    viewModel.setPinnedForItems(cardId, selectedItems.toList(), true)
-                                    selectedItems.clear()
-                                    showDropdown = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Delete selected") },
-                                onClick = {
-                                    viewModel.deleteItemsByIds(cardId, selectedItems.toList())
-                                    selectedItems.clear()
-                                    showDropdown = false
-                                }
-                            )
-                        }
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddDialog = true },
-                modifier = Modifier
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { padding ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (isLoading) {
-                Text(
-                    text = "Please wait...",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    items(cardItems, key = { it.id }) { item ->
-                        CardDetailItem(
-                            item = item,
-                            isSelected = selectedItems.contains(item.id),
-                            onCheckedChange = { checked ->
-                                if (checked) selectedItems.add(item.id)
-                                else selectedItems.remove(item.id)
-                            },
-                            onClick = {
-                                if (item.title.isValidUrl()) {
-                                    val intent = Intent(Intent.ACTION_VIEW, item.title.toUri())
-                                    context.startActivity(intent)
-                                }
-                            },
-                            onEditClick = { editingItem = item },
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -331,7 +330,7 @@ fun EditItemDialog(
             }
         },
         dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
+            Button(onClick = onDismiss) {
                 Text("Cancel")
             }
         }

@@ -15,8 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listsqre_revamped.ui.CardAppTheme
+import kotlinx.coroutines.launch
 import kotlin.jvm.java
 
 class MainActivity : ComponentActivity() {
@@ -82,6 +83,113 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
     var showDropdown by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingCard by remember { mutableStateOf<Card?>(null) }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            DrawerContent(
+                onRemindersClick = {
+                    context.startActivity(Intent(context, NotificationActivity::class.java))
+                },
+                onThemesClick = { /* Future themes */ }
+            )
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("All Lists") },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch { drawerState.open() }
+                        }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        Box {
+                            IconButton(onClick = { showDropdown = true }) {
+                                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "More")
+                            }
+                            DropdownMenu(
+                                expanded = showDropdown,
+                                onDismissRequest = { showDropdown = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Pin up selected") },
+                                    onClick = {
+                                        viewModel.pinSelectedCards()
+                                        showDropdown = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Delete selected") },
+                                    onClick = {
+                                        viewModel.deleteSelectedCards()
+                                        showDropdown = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { showAddDialog = true },
+                    modifier = Modifier.defaultMinSize(
+                        minWidth = 64.dp,
+                        minHeight = 64.dp
+                    )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Center
+        ) { padding ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (isLoading) {
+                    Text(
+                        text = "Please wait...",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            top = 16.dp,
+                            end = 16.dp,
+                            bottom = 96.dp /* padding 64 + 16 + 16 */
+                        ),
+                    ) {
+                        items(state.cards, key = { it.id }) { item ->
+                            CardItem(
+                                card = item,
+                                onCheckedChange = { isChecked ->
+                                    viewModel.updateCardSelection(item.id, isChecked)
+                                },
+                                onClick = {
+                                    context.startActivity(
+                                        Intent(context, CardDetailActivity::class.java).apply {
+                                            putExtra("CARD_TITLE", item.title)
+                                            putExtra("CARD_ID", item.id)
+                                        }
+                                    )
+                                },
+                                onEditClick = { editingCard = item },
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     if (showAddDialog) {
         AddCardDialog(
@@ -103,88 +211,18 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
             }
         )
     }
+}
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("All Lists") },
-                actions = {
-                    IconButton(onClick = {
-                        context.startActivity(Intent(context, NotificationActivity::class.java))
-                    }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
-                    }
-                    Box {
-                        IconButton(onClick = { showDropdown = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More")
-                        }
-                        DropdownMenu(
-                            expanded = showDropdown,
-                            onDismissRequest = { showDropdown = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Pin selected") },
-                                onClick = {
-                                    viewModel.pinSelectedCards()
-                                    showDropdown = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Delete selected") },
-                                onClick = {
-                                    viewModel.deleteSelectedCards()
-                                    showDropdown = false
-                                }
-                            )
-                        }
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddDialog = true },
-                modifier = Modifier
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { padding ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (isLoading) {
-                Text(
-                    text = "Please wait...",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    items(state.cards, key = { it.id }) { item ->
-                        CardItem(
-                            card = item,
-                            onCheckedChange = { isChecked ->
-                                viewModel.updateCardSelection(item.id, isChecked)
-                            },
-                            onClick = {
-                                context.startActivity(
-                                    Intent(context, CardDetailActivity::class.java).apply {
-                                        putExtra("CARD_TITLE", item.title)
-                                        putExtra("CARD_ID", item.id)
-                                    }
-                                )
-                            },
-                            onEditClick = { editingCard = item },
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-            }
+@Composable
+fun DrawerContent(onRemindersClick: () -> Unit, onThemesClick: () -> Unit) {
+    ModalDrawerSheet(modifier = Modifier.width(240.dp)) {
+        Text("Menu", modifier = Modifier.padding(16.dp))
+        NavigationDrawerItem(
+            label = { Text("Reminders") }, selected = false, onClick = onRemindersClick
+        )
+        NavigationDrawerItem(
+            label = { Text("Themes") }, selected = false, onClick = onThemesClick
+        )
     }
 }
 
