@@ -23,6 +23,9 @@ interface NotificationDao {
 
     @Query("DELETE FROM notifications WHERE uniqueId = :uniqueId")
     suspend fun deleteByUniqueId(uniqueId: Int)
+
+    @Query("SELECT * FROM notifications WHERE uniqueId = :uniqueId LIMIT 1")
+    suspend fun getNotificationById(uniqueId: Int): NotificationEntity?
 }
 
 //class NotificationRepository(private val dao: NotificationDao) {

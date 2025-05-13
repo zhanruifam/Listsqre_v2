@@ -86,8 +86,8 @@ fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
             FloatingActionButton(
                 onClick = { showTimePicker = true },
                 modifier = Modifier.defaultMinSize(
-                    minWidth = 64.dp,
-                    minHeight = 64.dp
+                    minWidth = 56.dp,
+                    minHeight = 56.dp
                 )
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -110,7 +110,7 @@ fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
                         start = 16.dp,
                         top = 16.dp,
                         end = 16.dp,
-                        bottom = 96.dp /* padding 64 + 16 + 16 */
+                        bottom = 88.dp /* padding 56 + 16 + 16 */
                     ),
                     // verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -254,7 +254,6 @@ fun NotificationCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dayExecuted = if (notification.isToday) "today" else "tomorrow"
     val formattedTime = SimpleDateFormat(
         "HH:mm",
         Locale.getDefault()).format(Date(notification.notificationTime)
@@ -286,7 +285,7 @@ fun NotificationCard(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Scheduled at ≈$formattedTime $dayExecuted",
+                        text = "Scheduled later at ≈$formattedTime",
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

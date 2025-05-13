@@ -26,6 +26,7 @@ class NotificationReceiver : BroadcastReceiver() {
         const val PERMISSION = "android.permission.POST_NOTIFICATIONS"
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onReceive(context: Context, intent: Intent?) {
         if (ContextCompat.checkSelfPermission(context, PERMISSION) != PackageManager.PERMISSION_GRANTED) {
             return
@@ -59,15 +60,8 @@ class NotificationReceiver : BroadcastReceiver() {
 
         notificationManager.notify(notificationId, notification)
 
-        /* Updates the DB too after notification appears */
-        CoroutineScope(Dispatchers.IO).launch {
-            val db = Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                "card-database"
-            ).build()
-            db.notificationDao().deleteByUniqueId(notificationId)
-        }
+        /* Reschedule notification, reusing the same notification Id */
+        rescheduleNotification(context, notificationId, rawDescription)
     }
 
     private fun createNotificationChannel(notificationManager: NotificationManager) {
@@ -128,6 +122,58 @@ fun scheduleNotification(context: Context, hour: Int, minute: Int, desc: String 
     }
 
     return notificationId
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+fun rescheduleNotification(context: Context, uniqueId: Int, desc: String = "") {
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    CoroutineScope(Dispatchers.IO).launch {
+        val db = Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "card-database"
+        ).build()
+        val notification = db.notificationDao().getNotificationById(uniqueId)
+        notification?.let {
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = it.notificationTime
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+
+            val updatedNotification = it.copy(notificationTime = calendar.timeInMillis)
+            db.notificationDao().insert(updatedNotification)
+
+            val alarmIntent = Intent(context, NotificationReceiver::class.java).apply {
+                putExtra("DESCRIPTION", desc)
+                putExtra("NID", uniqueId)
+            }
+
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                uniqueId, // unique request code per alarm
+                alarmIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            try {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                }
+            } catch (_: SecurityException) {
+                // Handle or log
+            }
+        }
+    }
 }
 
 fun cancelNotification(context: Context, notificationId: Int, desc: String = "") {

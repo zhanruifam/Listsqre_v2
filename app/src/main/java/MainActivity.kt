@@ -140,8 +140,8 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                 FloatingActionButton(
                     onClick = { showAddDialog = true },
                     modifier = Modifier.defaultMinSize(
-                        minWidth = 64.dp,
-                        minHeight = 64.dp
+                        minWidth = 56.dp,
+                        minHeight = 56.dp
                     )
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
@@ -164,7 +164,7 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                             start = 16.dp,
                             top = 16.dp,
                             end = 16.dp,
-                            bottom = 96.dp /* padding 64 + 16 + 16 */
+                            bottom = 88.dp /* padding 56 + 16 + 16 */
                         ),
                     ) {
                         items(state.cards, key = { it.id }) { item ->
