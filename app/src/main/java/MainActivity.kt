@@ -14,9 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
             if (!isGranted) {
                 Toast.makeText(
                     this,
-                    "Permission denied, go to settings",
+                    "Permission denied, enable it from settings",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -227,7 +227,6 @@ fun DrawerContent(onRemindersClick: () -> Unit, onThemesClick: () -> Unit) {
 }
 
 // Update AddCardDialog to include pin checkbox
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCardDialog(
     onDismiss: () -> Unit,
@@ -288,7 +287,6 @@ fun AddCardDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditCardDialog(
     card: Card,
@@ -350,7 +348,6 @@ fun EditCardDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardItem(
     card: Card,
@@ -380,36 +377,34 @@ fun CardItem(
                 onCheckedChange = onCheckedChange,
                 modifier = Modifier.clickable { }
             )
-            Box(
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .clickable { onClick() }
             ) {
-                Column {
-                    Text(
-                        text = card.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = card.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                Text(
+                    text = card.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = card.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
             IconButton(
                 onClick = { onEditClick() },
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit"
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More"
                 )
             }
         }
