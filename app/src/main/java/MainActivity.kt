@@ -194,8 +194,8 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
     if (showAddDialog) {
         AddCardDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { title, description, isPinned ->
-                viewModel.addCard(title, description, isPinned)
+            onConfirm = { title, isPinned ->
+                viewModel.addCard(title, isPinned)
                 showAddDialog = false
             }
         )
@@ -205,8 +205,8 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
         EditCardDialog(
             card = card,
             onDismiss = { editingCard = null },
-            onSave = { title, description, isPinned ->
-                viewModel.updateCard(card.id, title, description, isPinned)
+            onSave = { title, isPinned ->
+                viewModel.updateCard(card.id, title, isPinned)
                 editingCard = null
             }
         )
@@ -230,10 +230,9 @@ fun DrawerContent(onRemindersClick: () -> Unit, onThemesClick: () -> Unit) {
 @Composable
 fun AddCardDialog(
     onDismiss: () -> Unit,
-    onConfirm: (String, String, Boolean) -> Unit
+    onConfirm: (String, Boolean) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     var isPinned by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -246,16 +245,7 @@ fun AddCardDialog(
                     onValueChange = { title = it },
                     placeholder = { Text("Title") },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
-                    singleLine = false
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    placeholder = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
+                    maxLines = 5,
                     singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -273,7 +263,7 @@ fun AddCardDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onConfirm(title, description, isPinned) },
+                onClick = { onConfirm(title, isPinned) },
                 enabled = title.isNotBlank()
             ) {
                 Text("Add")
@@ -291,10 +281,9 @@ fun AddCardDialog(
 fun EditCardDialog(
     card: Card,
     onDismiss: () -> Unit,
-    onSave: (String, String, Boolean) -> Unit
+    onSave: (String, Boolean) -> Unit
 ) {
     var title by remember { mutableStateOf(card.title) }
-    var description by remember { mutableStateOf(card.description) }
     var isPinned by remember { mutableStateOf(card.isPinned) }
 
     AlertDialog(
@@ -307,16 +296,7 @@ fun EditCardDialog(
                     onValueChange = { title = it },
                     placeholder = { Text("Title") },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
-                    singleLine = false
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    placeholder = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
+                    maxLines = 5,
                     singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -334,7 +314,7 @@ fun EditCardDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onSave(title, description, isPinned) },
+                onClick = { onSave(title, isPinned) },
                 enabled = title.isNotBlank()
             ) {
                 Text("Save")
@@ -362,7 +342,7 @@ fun CardItem(
             containerColor = if (card.isPinned) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
-                MaterialTheme.colorScheme.surface
+                MaterialTheme.colorScheme.surfaceContainer
             }
         )
     ) {
@@ -377,27 +357,16 @@ fun CardItem(
                 onCheckedChange = onCheckedChange,
                 modifier = Modifier.clickable { }
             )
-            Column(
+            Text(
+                text = card.title,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 5,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .weight(1f)
                     .clickable { onClick() }
-            ) {
-                Text(
-                    text = card.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = card.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            )
             IconButton(
                 onClick = { onEditClick() },
                 modifier = Modifier.padding(start = 8.dp)

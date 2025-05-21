@@ -32,16 +32,16 @@ class CardViewModel(
             initialValue = CardState()
         )
 
-    fun updateCard(id: Long, title: String, description: String, isPinned: Boolean) {
+    fun updateCard(id: Long, title: String, isPinned: Boolean) {
         viewModelScope.launch {
-            val card = Card(id, title, description, isPinned = isPinned)
+            val card = Card(id, title, isPinned = isPinned)
             cardDao.updateCard(card)
         }
     }
 
-    fun addCard(title: String, description: String, isPinned: Boolean = false) {
+    fun addCard(title: String, isPinned: Boolean = false) {
         viewModelScope.launch {
-            val card = Card(title = title, description = description, isPinned = isPinned)
+            val card = Card(title = title, isPinned = isPinned)
             cardDao.insertCard(card)
         }
     }

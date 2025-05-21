@@ -17,7 +17,6 @@ import androidx.room.PrimaryKey
 data class CardItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val cardId: Long,
-    val title: String,
     val description: String,
     val isSelected: Boolean = false,
     val isPinned: Boolean = false,

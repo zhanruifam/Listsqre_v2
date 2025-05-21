@@ -166,8 +166,8 @@ fun CardDetailAppScreen(
                                 else selectedItems.remove(item.id)
                             },
                             onClick = {
-                                if (item.title.isValidUrl()) {
-                                    val intent = Intent(Intent.ACTION_VIEW, item.title.toUri())
+                                if (item.description.isValidUrl()) {
+                                    val intent = Intent(Intent.ACTION_VIEW, item.description.toUri())
                                     context.startActivity(intent)
                                 }
                             },
@@ -183,10 +183,9 @@ fun CardDetailAppScreen(
     if (showAddDialog) {
         AddItemDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { title, description, isPinned ->
+            onConfirm = {description, isPinned ->
                 val newItem = CardItem(
                     cardId = cardId,
-                    title = title,
                     description = description,
                     isPinned = isPinned
                 )
@@ -200,9 +199,8 @@ fun CardDetailAppScreen(
         EditItemDialog(
             item = item,
             onDismiss = { editingItem = null },
-            onSave = { title, description, isPinned ->
+            onSave = {description, isPinned ->
                 val updated = item.copy(
-                    title = title,
                     description = description,
                     isPinned = isPinned
                 )
@@ -217,9 +215,8 @@ fun CardDetailAppScreen(
 @Composable
 fun AddItemDialog(
     onDismiss: () -> Unit,
-    onConfirm: (String, String, Boolean) -> Unit
+    onConfirm: (String, Boolean) -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var isPinned by remember { mutableStateOf(false) }
 
@@ -229,20 +226,11 @@ fun AddItemDialog(
         text = {
             Column {
                 OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    placeholder = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
-                    singleLine = false
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     placeholder = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
+                    maxLines = 5,
                     singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -260,8 +248,8 @@ fun AddItemDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onConfirm(title, description, isPinned) },
-                enabled = title.isNotBlank()
+                onClick = { onConfirm(description, isPinned) },
+                enabled = description.isNotBlank()
             ) {
                 Text("Add")
             }
@@ -278,9 +266,8 @@ fun AddItemDialog(
 fun EditItemDialog(
     item: CardItem,
     onDismiss: () -> Unit,
-    onSave: (String, String, Boolean) -> Unit
+    onSave: (String, Boolean) -> Unit
 ) {
-    var title by remember { mutableStateOf(item.title) }
     var description by remember { mutableStateOf(item.description) }
     var isPinned by remember { mutableStateOf(item.isPinned) }
 
@@ -290,20 +277,11 @@ fun EditItemDialog(
         text = {
             Column {
                 OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    placeholder  = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
-                    singleLine = false
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     placeholder  = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
+                    maxLines = 5,
                     singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -321,8 +299,8 @@ fun EditItemDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onSave(title, description, isPinned) },
-                enabled = title.isNotBlank()
+                onClick = { onSave(description, isPinned) },
+                enabled = description.isNotBlank()
             ) {
                 Text("Save")
             }
@@ -350,7 +328,7 @@ fun CardDetailItem(
             containerColor = if (item.isPinned) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
-                MaterialTheme.colorScheme.surface
+                MaterialTheme.colorScheme.surfaceContainer
             }
         )
     ) {
@@ -364,27 +342,16 @@ fun CardDetailItem(
                 checked = isSelected,
                 onCheckedChange = onCheckedChange
             )
-            Column(
+            Text(
+                text = item.description,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 5,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .weight(1f)
                     .clickable { onClick() }
-            ) {
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = item.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            )
             IconButton(
                 onClick = { onEditClick() },
                 modifier = Modifier.padding(start = 8.dp)

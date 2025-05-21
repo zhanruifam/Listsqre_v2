@@ -261,7 +261,7 @@ fun NotificationCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            MaterialTheme.colorScheme.primaryContainer
+            MaterialTheme.colorScheme.surfaceContainer
         )
     ) {
         Row(
@@ -270,27 +270,16 @@ fun NotificationCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
+            Text(
+                text = notification.description + "\nScheduled later at ≈$formattedTime",
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 5,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .weight(1f)
                     .clickable { onClick() }
-            ) {
-                Text(
-                    text = notification.description,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Scheduled later at ≈$formattedTime",
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            )
             IconButton(
                 onClick = { onCancel(notification) },
                 modifier = Modifier.padding(start = 8.dp)

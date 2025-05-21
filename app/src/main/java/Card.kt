@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
-    val description: String,
     val isSelected: Boolean = false,
     val isPinned: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
