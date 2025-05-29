@@ -1,18 +1,27 @@
 package com.example.listsqre_revamped.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 private val LightColorScheme = lightColorScheme(
-    primary = androidx.compose.ui.graphics.Color(0xFF6200EE),
-    secondary = androidx.compose.ui.graphics.Color(0xFF03DAC6),
-    tertiary = androidx.compose.ui.graphics.Color(0xFF018786),
-    // background = androidx.compose.ui.graphics.Color(0xFF000000)
+    primary = Color(0xFF6200EE),
+    secondary = Color(0xFF03DAC6),
+    background = Color(0xFFFFFFFF),
+    // ... other colors
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = Color(0xFFBB86FC),
+    secondary = Color(0xFF03DAC6),
+    background = Color(0xFF121212),
     // ... other colors
 )
 
@@ -26,10 +35,13 @@ val Typography = Typography(
 
 @Composable
 fun CardAppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
     MaterialTheme(
-        colorScheme = LightColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )
