@@ -1,13 +1,9 @@
 package com.example.listsqre_revamped
 
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -15,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,9 +19,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -35,7 +32,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,27 +57,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listsqre_revamped.ui.CardAppTheme
+import com.example.listsqre_revamped.ui.ThemedFAB
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    /* Definition of permission launcher needs to be done at the class level */
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (!isGranted) {
-                Toast.makeText(
-                    this,
-                    "Permission denied, enable it from settings",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        permissionRequest()
         setContent {
             CardAppTheme {
                 val app = LocalContext.current.applicationContext as MyApplication
@@ -94,17 +77,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     CardAppScreen(viewModel = viewModel)
                 }
-            }
-        }
-    }
-
-    private fun permissionRequest() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val permission = NotificationReceiver.PERMISSION
-            val permissionState = ContextCompat.checkSelfPermission(this, permission)
-
-            if (permissionState != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionLauncher.launch(permission)
             }
         }
     }
@@ -129,7 +101,8 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                 onRemindersClick = {
                     context.startActivity(Intent(context, NotificationActivity::class.java))
                 },
-                onThemesClick = { /* Future themes */ }
+                onThemesClick = { /* App themes activity */ },
+                onAboutClick = { /* About app activity */ },
             )
         }
     ) {
@@ -173,15 +146,9 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { showAddDialog = true },
-                    modifier = Modifier.defaultMinSize(
-                        minWidth = 56.dp,
-                        minHeight = 56.dp
-                    )
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
-                }
+                ThemedFAB(
+                    onClick = { showAddDialog = true }
+                )
             },
             floatingActionButtonPosition = FabPosition.Center
         ) { padding ->
@@ -250,19 +217,38 @@ fun CardAppScreen(viewModel: CardViewModel = viewModel()) {
 }
 
 @Composable
-fun DrawerContent(onRemindersClick: () -> Unit, onThemesClick: () -> Unit) {
+fun DrawerContent(
+    onRemindersClick: () -> Unit,
+    onThemesClick: () -> Unit,
+    onAboutClick: () -> Unit
+) {
     ModalDrawerSheet(modifier = Modifier.width(240.dp)) {
-        Text("Menu", modifier = Modifier.padding(16.dp))
-        NavigationDrawerItem(
-            label = { Text("Reminders") }, selected = false, onClick = onRemindersClick
+        Text(
+            "Menu",
+            fontWeight = FontWeight.W900,
+            modifier = Modifier.padding(16.dp)
         )
         NavigationDrawerItem(
-            label = { Text("Themes") }, selected = false, onClick = onThemesClick
+            label = { Text("Reminders") },
+            icon = { Icon(Icons.Default.Notifications, contentDescription = "Reminders") },
+            selected = false,
+            onClick = onRemindersClick
+        )
+        NavigationDrawerItem(
+            label = { Text("Themes") },
+            icon = { Icon(Icons.Default.Edit, contentDescription = "Themes") },
+            selected = false,
+            onClick = onThemesClick
+        )
+        NavigationDrawerItem(
+            label = { Text("About App") },
+            icon = { Icon(Icons.Default.Info, contentDescription = "About") },
+            selected = false,
+            onClick = onAboutClick
         )
     }
 }
 
-// Update AddCardDialog to include pin checkbox
 @Composable
 fun AddCardDialog(
     onDismiss: () -> Unit,
@@ -395,9 +381,7 @@ fun CardItem(
                 .weight(1f)
                 .combinedClickable(
                     onClick = { onClick() },
-                    onLongClick = {
-                        onEditClick()
-                    }
+                    onLongClick = { onEditClick() }
                 )
         )
     }

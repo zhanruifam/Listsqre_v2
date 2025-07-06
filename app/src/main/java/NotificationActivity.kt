@@ -1,10 +1,13 @@
 package com.example.listsqre_revamped
 
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,13 +25,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,17 +51,32 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listsqre_revamped.ui.CardAppTheme
+import com.example.listsqre_revamped.ui.ThemedFAB
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class NotificationActivity : ComponentActivity() {
+    /* Definition of permission launcher needs to be done at the class level */
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted) {
+                Toast.makeText(
+                    this,
+                    "Permission denied, enable it from settings",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        permissionRequest()
         setContent {
             CardAppTheme {
                 val app = LocalContext.current.applicationContext as MyApplication
@@ -74,6 +89,17 @@ class NotificationActivity : ComponentActivity() {
                 ) {
                     NotificationAppScreen(viewModel = viewModel)
                 }
+            }
+        }
+    }
+
+    private fun permissionRequest() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permission = NotificationReceiver.PERMISSION
+            val permissionState = ContextCompat.checkSelfPermission(this, permission)
+
+            if (permissionState != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(permission)
             }
         }
     }
@@ -91,7 +117,7 @@ fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Reminders") },
+                title = { Text("Daily Reminders") },
                 navigationIcon = {
                     IconButton(onClick = {
                         (context as? Activity)?.finish()
@@ -105,15 +131,9 @@ fun NotificationAppScreen(viewModel: NotificationViewModel = viewModel()) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showTimePicker = true },
-                modifier = Modifier.defaultMinSize(
-                    minWidth = 56.dp,
-                    minHeight = 56.dp
-                )
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
+            ThemedFAB(
+                onClick = { showTimePicker = true }
+            )
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { padding ->
