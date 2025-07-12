@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -46,6 +47,19 @@ class CardItemViewModel(
 
     fun updateCardItem(item: CardItem) = viewModelScope.launch {
         cardItemDao.update(item)
+    }
+
+    fun updateCardItemSelection(cardId: Long, cardItemId: Long, isSelected: Boolean) {
+        viewModelScope.launch {
+            // First get the current card
+            val currentItems = cardItemDao.getItemsForCard(cardId).first()
+            val itemToUpdate = currentItems.firstOrNull { it.id == cardItemId }
+
+            itemToUpdate?.let { item ->
+                val updatedItem = item.copy(isSelected = isSelected)
+                cardItemDao.update(updatedItem)
+            }
+        }
     }
 
     fun deleteCardItem(item: CardItem) = viewModelScope.launch {

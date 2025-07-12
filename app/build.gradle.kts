@@ -51,17 +51,17 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.9.0")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.0")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.1")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // Core Compose UI and Material Design 3
-    implementation("androidx.compose.ui:ui:1.8.2")
-    implementation("androidx.compose.foundation:foundation:1.8.2")
-    implementation("androidx.compose.material:material:1.8.2")
-    implementation("androidx.compose.runtime:runtime-livedata:1.8.2")
+    implementation("androidx.compose.ui:ui:1.8.3")
+    implementation("androidx.compose.foundation:foundation:1.8.3")
+    implementation("androidx.compose.material:material:1.8.3")
+    implementation("androidx.compose.runtime:runtime-livedata:1.8.3")
     implementation("androidx.compose.material3:material3:1.3.2")
 
     // Room database integration
@@ -70,14 +70,14 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
 
     // Tooling for Preview
-    implementation("androidx.compose.ui:ui-tooling-preview:1.8.2")
-    debugImplementation("androidx.compose.ui:ui-tooling:1.8.2")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.8.3")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.8.3")
 
     // Activity and Lifecycle Integration
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
 
     // Optional - Testing
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.8.2")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.2")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.8.3")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.3")
 }

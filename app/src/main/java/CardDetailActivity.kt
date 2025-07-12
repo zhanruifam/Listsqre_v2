@@ -178,9 +178,9 @@ fun CardDetailAppScreen(
                 items(cardItems, key = { it.id }) { item ->
                     CardDetailItem(
                         item = item,
-                        isSelected = selectedItems.contains(item.id),
-                        onCheckedChange = { checked ->
-                            if (checked) selectedItems.add(item.id)
+                        onCheckedChange = { isChecked ->
+                            viewModel.updateCardItemSelection(cardId, item.id, isChecked)
+                            if (isChecked) selectedItems.add(item.id)
                             else selectedItems.remove(item.id)
                         },
                         onClick = {
@@ -332,7 +332,6 @@ fun EditItemDialog(
 @Composable
 fun CardDetailItem(
     item: CardItem,
-    isSelected: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onClick: () -> Unit,
     onEditClick: () -> Unit,
@@ -345,7 +344,7 @@ fun CardDetailItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            checked = isSelected,
+            checked = item.isSelected,
             onCheckedChange = { onCheckedChange(it) },
             modifier = Modifier.clickable { onCheckedChange(!item.isSelected) }
         )

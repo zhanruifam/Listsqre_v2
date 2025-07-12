@@ -26,8 +26,8 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF3C2F2F)
 )
 
-val LightFABContainer = Color(0xFF826A5D)   // Same as primary
-val LightFABContent = Color(0xFFFFFFFF)     // Same as onPrimary
+val LightFABContainer = Color(0xFFC3B091)
+val LightFABContent = Color(0xFF000000)
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFBFA6A0),            // Dusty rose
@@ -40,8 +40,8 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = Color(0xFFEFE7DD)
 )
 
-val DarkFABContainer = Color(0xFFBFA6A0)    // Same as primary
-val DarkFABContent = Color(0xFF1E1E1E)      // Same as onPrimary
+val DarkFABContainer = Color(0xFF7A6E5B)
+val DarkFABContent = Color(0xFFEDE3D2)
 
 val Typography = Typography(
     bodyLarge = TextStyle(
