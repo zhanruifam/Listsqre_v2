@@ -6,11 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 data class NotiState(
     val cards: List<NotificationEntity> = emptyList()
@@ -32,15 +31,15 @@ class NotificationViewModel(
             initialValue = NotiState()
         )
 
-    fun insert(notification: NotificationEntity) = viewModelScope.launch {
-        notificationDao.insert(notification)
+    fun insert(notification: NotificationEntity) {
+        viewModelScope.launch {
+            notificationDao.insert(notification)
+        }
     }
 
-    fun cancelNotification(notification: NotificationEntity) = viewModelScope.launch {
-        notificationDao.delete(notification)
-    }
-
-    fun cancelNotificationById(id: Int) = viewModelScope.launch {
-        notificationDao.deleteByUniqueId(id)
+    fun cancelNotification(notification: NotificationEntity) {
+        viewModelScope.launch {
+            notificationDao.delete(notification)
+        }
     }
 }

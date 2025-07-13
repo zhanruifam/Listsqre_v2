@@ -15,8 +15,8 @@ import androidx.room.PrimaryKey
     indices = [Index("cardId")]
 )
 data class CardItem(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val cardId: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,  // own card item id
+    val cardId: Long,                                   // mapped to item's parent card id
     val description: String,
     val isSelected: Boolean = false,
     val isPinned: Boolean = false,

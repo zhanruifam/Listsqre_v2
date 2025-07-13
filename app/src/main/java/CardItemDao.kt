@@ -22,9 +22,9 @@ interface CardItemDao {
     @Delete
     suspend fun delete(item: CardItem)
 
-    @Query("DELETE FROM card_items WHERE id IN (:ids) AND cardId = :cardId")
-    suspend fun deleteItemsByIds(cardId: Long, ids: List<Long>)
+    @Query("DELETE FROM card_items WHERE isSelected = 1 AND cardId = :cardId")
+    suspend fun deleteItemsByIds(cardId: Long)
 
-    @Query("UPDATE card_items SET isPinned = :pin WHERE id IN (:ids) AND cardId = :cardId")
-    suspend fun setPinnedForItems(cardId: Long, ids: List<Long>, pin: Boolean)
+    @Query("UPDATE card_items SET isPinned = 1 WHERE isSelected = 1 AND cardId = :cardId")
+    suspend fun setPinnedForItems(cardId: Long)
 }

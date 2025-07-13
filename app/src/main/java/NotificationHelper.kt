@@ -50,7 +50,7 @@ class NotificationReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.listsqrev2)
+            .setSmallIcon(R.mipmap.listsqre_v2)
             .setContentTitle("Scheduled reminder:")
             .setContentText(rawDescription)
             .setStyle(NotificationCompat.BigTextStyle().bigText(rawDescription)) // for expanded view

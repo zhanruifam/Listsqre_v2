@@ -13,9 +13,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/listsqrev2"
+        android:icon="@mipmap/listsqre_v2"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/listsqrev2_round"
+        android:roundIcon="@mipmap/listsqre_v2_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Listsqre_Revamped"
         tools:targetApi="31">

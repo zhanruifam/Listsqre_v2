@@ -48,7 +48,7 @@ class CardViewModel(
 
     fun updateCardSelection(cardId: Long, isSelected: Boolean) {
         viewModelScope.launch {
-            // First get the current card
+            // First get the current cards
             val currentCards = cardDao.getAllCards().first()
             val cardToUpdate = currentCards.firstOrNull { it.id == cardId }
 

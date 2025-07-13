@@ -41,17 +41,21 @@ class CardItemViewModel(
         _cardId.value = id
     }
 
-    fun insertCardItem(item: CardItem) = viewModelScope.launch {
-        cardItemDao.insert(item)
+    fun insertCardItem(item: CardItem) {
+        viewModelScope.launch {
+            cardItemDao.insert(item)
+        }
     }
 
-    fun updateCardItem(item: CardItem) = viewModelScope.launch {
-        cardItemDao.update(item)
+    fun updateCardItem(item: CardItem) {
+        viewModelScope.launch {
+            cardItemDao.update(item)
+        }
     }
 
     fun updateCardItemSelection(cardId: Long, cardItemId: Long, isSelected: Boolean) {
         viewModelScope.launch {
-            // First get the current card
+            // First get the current card items
             val currentItems = cardItemDao.getItemsForCard(cardId).first()
             val itemToUpdate = currentItems.firstOrNull { it.id == cardItemId }
 
@@ -62,16 +66,22 @@ class CardItemViewModel(
         }
     }
 
-    fun deleteCardItem(item: CardItem) = viewModelScope.launch {
-        cardItemDao.delete(item)
+    fun deleteItemsByIds(cardId: Long) {
+        viewModelScope.launch {
+            cardItemDao.deleteItemsByIds(cardId)
+        }
     }
 
-    fun deleteItemsByIds(cardId: Long, ids: List<Long>) = viewModelScope.launch {
-        cardItemDao.deleteItemsByIds(cardId, ids)
-    }
+    fun setPinnedForItems(cardId: Long) {
+        viewModelScope.launch {
+            cardItemDao.setPinnedForItems(cardId)
 
-    fun setPinnedForItems(cardId: Long, ids: List<Long>, pin: Boolean) = viewModelScope.launch {
-        cardItemDao.setPinnedForItems(cardId, ids, pin)
+            // Also clear selection after pinning
+            val selectedItems = cardItemDao.getItemsForCard(cardId).first().filter { it.isSelected }
+            selectedItems.forEach { item ->
+                cardItemDao.update(item.copy(isSelected = false))
+            }
+        }
     }
 }
 

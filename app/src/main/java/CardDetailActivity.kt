@@ -40,7 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -96,7 +95,6 @@ fun CardDetailAppScreen(
     var showDropdown by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<CardItem?>(null) }
-    val selectedItems = remember { mutableStateListOf<Long>() }
 
     LaunchedEffect(cardId) {
         viewModel.setCardId(cardId)
@@ -131,16 +129,14 @@ fun CardDetailAppScreen(
                             DropdownMenuItem(
                                 text = { Text("Pin up selected") },
                                 onClick = {
-                                    viewModel.setPinnedForItems(cardId, selectedItems.toList(), true)
-                                    selectedItems.clear()
+                                    viewModel.setPinnedForItems(cardId)
                                     showDropdown = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text("Delete selected") },
                                 onClick = {
-                                    viewModel.deleteItemsByIds(cardId, selectedItems.toList())
-                                    selectedItems.clear()
+                                    viewModel.deleteItemsByIds(cardId)
                                     showDropdown = false
                                 }
                             )
@@ -180,8 +176,6 @@ fun CardDetailAppScreen(
                         item = item,
                         onCheckedChange = { isChecked ->
                             viewModel.updateCardItemSelection(cardId, item.id, isChecked)
-                            if (isChecked) selectedItems.add(item.id)
-                            else selectedItems.remove(item.id)
                         },
                         onClick = {
                             if (item.description.isValidUrl()) {
